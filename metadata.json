@@ -1,0 +1,7 @@
+{
+	"description": "Convert an amount in one currency to another given one", 
+	"uuid": "currencyconverter@david.bonnal.gmail.com", 
+	"shell-version": ["3.16.3"], 
+	"settings-schema": "org.gnome.shell.extensions.currencyconverter",
+	"name": "Currency Converter"
+}

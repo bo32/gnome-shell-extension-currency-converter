@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="gnome-shell-extensions">
+
+  <schema path="/org/gnome/shell/extensions/currencyconverter/" id="org.gnome.shell.extensions.currencyconverter">
+
+    <key type="s" name="favorite-currencies">
+        <default>'DKK,EUR,USD'</default>
+    </key>
+
+	<key type="s" name="api-key">
+        <default>'0151812ded362edd9cba5d7c3e0de609'</default>
+    </key>
+
+  </schema>
+</schemalist>

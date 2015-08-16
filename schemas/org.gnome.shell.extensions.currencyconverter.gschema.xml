@@ -8,7 +8,7 @@
     </key>
 
 	<key type="s" name="api-key">
-        <default>''</default>
+        <default>'0151812ded362edd9cba5d7c3e0de609'</default>
     </key>
 
   </schema>

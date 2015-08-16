@@ -11,8 +11,9 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Converter = Me.imports.converter.Converter;
 const Clutter = imports.gi.Clutter;
 //const Gio = imports.gi.Gio;
+const Shell = imports.gi.Shell;
 const ShellEntry = imports.ui.shellEntry;
-//const Prefs = Me.imports.prefs;
+const Prefs = Me.imports.prefs;
 const Convenience = Me.imports.convenience;
 const Settings = Convenience.getSettings();
 
@@ -183,11 +184,22 @@ const ReverseMenu = new Lang.Class({
 		this.actor.add(reverseButton);
 		let prefsButton = new St.Button({label: 'Preferences', x_expand: true});
 		prefsButton.connect('clicked', Lang.bind(this, function() {
-			Prefs.buildPrefsWidget();
+			launch_extension_prefs(Me.uuid);
 		}));
 		this.actor.add(prefsButton);
-	}
+	},
 });
+
+function launch_extension_prefs(uuid) {
+    let appSys = Shell.AppSystem.get_default();
+    let app = appSys.lookup_app('gnome-shell-extension-prefs.desktop');
+    let info = app.get_app_info();
+    let timestamp = global.display.get_current_time_roundtrip();
+    info.launch_uris(
+        ['extension:///' + uuid],
+        global.create_app_launch_context(timestamp, -1)
+    );
+}
 
 function init() {
 }

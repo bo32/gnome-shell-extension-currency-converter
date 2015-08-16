@@ -64,8 +64,10 @@ CurrencyConverterSettingsWidget.prototype = {
 					let index = fav_currencies.indexOf(this._treeViewModel.get_value(iter, columns.CODE));
 					fav_currencies.splice(index, 1);
 				}
-				fav_currencies.sort();
-				fav_currencies_field.set_text(fav_currencies.join());
+				//fav_currencies.sort();
+				let new_fav_currencies = fav_currencies.join();
+				fav_currencies_field.set_text(new_fav_currencies);
+				Settings.set_string('favorite-currencies', new_fav_currencies);
 		}));
 		this._currencyTreeView.append_column(favoriteColumn);
 

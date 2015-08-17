@@ -19,21 +19,28 @@ CurrencyConverterSettingsWidget.prototype = {
                                   row_spacing: 6,
                                   column_spacing: 6 });
 
-		/* API key field */
-		this.api_key_field = new Gtk.Entry({hexpand: true});
-		this._grid.attach(new Gtk.Label({label: 'API Key'}), 0, 0, 1, 1);
-		this.api_key_field.set_text(Settings.get_string('api-key'));
-		this._grid.attach(this.api_key_field, 1, 0, 5, 1);
-
 		/* Link to currencylayer.com */
-		this._grid.attach(new Gtk.LinkButton({label: 'Currency Layer website', uri: 'https://currencylayer.com/'}), 0, 1, 6, 1);
+		this._grid.attach(new Gtk.LinkButton({label: 'Currency Layer website', uri: 'https://currencylayer.com/'}), 0, 0, 6, 1);
+
+		/* API key field */
+		this.api_key_field = new Gtk.Entry({hexpand: true, editable: false});
+		this._grid.attach(new Gtk.Label({label: 'API Key'}), 0, 1, 1, 1);
+		this.api_key_field.set_text(Settings.get_string('api-key'));
+		this._grid.attach(this.api_key_field, 1, 1, 4, 1);
+		
+		let test_api_key_button = new Gtk.Button({label: 'Test'});
+		test_api_key_button.connect('clicked', Lang.bind(this, function() {
+			let converter = new Converter(Settings.get_string('api-key'));
+			converter.is_api_key_valid(this._set_test_button_resulting_color);
+		}));
+		this._grid.attach(test_api_key_button, 5, 1, 1, 1);
 
 		/* Favorite currencies field */
 		let fav_currencies = Settings.get_string('favorite-currencies').split(',');
-		this._grid.attach(new Gtk.Label({label: 'Favorite currencies'}), 0, 2, 1, 1);
+		this._grid.attach(new Gtk.Label({label: 'Favorite currencies'}), 0, 2, 2, 1);
 		let fav_currencies_field = new Gtk.Entry({hexpand: true, editable: false});
 		fav_currencies_field.set_text(Settings.get_string('favorite-currencies'));
-		this._grid.attach(fav_currencies_field, 1, 2, 5, 1);
+		this._grid.attach(fav_currencies_field, 2, 2, 4, 1);
 
 		/* Currency list */
 		this._currencyTreeView = new Gtk.TreeView();
@@ -110,7 +117,11 @@ CurrencyConverterSettingsWidget.prototype = {
         scollingWindow.width_request = 700;
         scollingWindow.show_all();
         return scollingWindow;
-    }
+    },
+
+	_set_test_button_resulting_color: function(api_key_is_valid) {
+		let color = api_key_is_valid ? RGB(0, 255, 0) : RGB(255, 0, 0);
+	}
 };
 
 function init() {

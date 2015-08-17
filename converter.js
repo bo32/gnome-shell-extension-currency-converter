@@ -7,10 +7,20 @@ const Lang = imports.lang;
 const Converter = new Lang.Class({
 	Name: 'Converter',
 
+	_init: function(api_key) {
+		this._api_key = api_key;
+	},
+
 	_init: function(fromCurrency, toCurrency, api_key) {
 		this.fromCurrency = fromCurrency;
 		this.toCurrency = toCurrency;
 		this._api_key = api_key;
+	},
+
+	is_api_key_valid: function(callback) {
+		var result;
+		callback(result);
+		return result;
 	},
 
 	setFromCurrency: function(currency) {

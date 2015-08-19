@@ -7,10 +7,6 @@ const Lang = imports.lang;
 const Converter = new Lang.Class({
 	Name: 'Converter',
 
-	_init: function(api_key) {
-		this._api_key = api_key;
-	},
-
 	_init: function(fromCurrency, toCurrency, api_key) {
 		this.fromCurrency = fromCurrency;
 		this.toCurrency = toCurrency;
@@ -18,8 +14,17 @@ const Converter = new Lang.Class({
 	},
 
 	is_api_key_valid: function(callback) {
-		var result;
-		callback(result);
+		if (!this._api_key) {
+			return false;
+		}
+		let result = false;
+		let url = 'http://www.apilayer.net/api/live?access_key=' + this._api_key;
+		let request = Soup.Message.new('GET', url);
+		let session = new Soup.SessionAsync();
+		session.queue_message(request, Lang.bind(this, function(session, response) {
+			result = response.status_code == 200;
+			callback(result);
+		}));
 		return result;
 	},
 

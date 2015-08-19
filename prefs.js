@@ -1,5 +1,6 @@
 const Gio = imports.gi.Gio;
 const Gtk = imports.gi.Gtk;
+const Gdk = imports.gi.Gdk;
 const GLib = imports.gi.GLib;
 const GObject = imports.gi.GObject;
 const JsonParser = GObject.JsonParser;
@@ -11,9 +12,11 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Currencies = Me.imports.currencies;
 const Convenience = Me.imports.convenience;
 const Settings = Convenience.getSettings();
-
+const Clutter = imports.gi.Clutter;
+const Converter = Me.imports.converter.Converter;
 
 CurrencyConverterSettingsWidget.prototype = {
+
 	_init: function() {		
 		this._grid = new Gtk.Grid({ orientation: Gtk.Orientation.VERTICAL,
                                   row_spacing: 6,
@@ -23,15 +26,27 @@ CurrencyConverterSettingsWidget.prototype = {
 		this._grid.attach(new Gtk.LinkButton({label: 'Currency Layer website', uri: 'https://currencylayer.com/'}), 0, 0, 6, 1);
 
 		/* API key field */
-		this.api_key_field = new Gtk.Entry({hexpand: true, editable: false});
+		let api_key_field = new Gtk.Entry({hexpand: true});
 		this._grid.attach(new Gtk.Label({label: 'API Key'}), 0, 1, 1, 1);
-		this.api_key_field.set_text(Settings.get_string('api-key'));
-		this._grid.attach(this.api_key_field, 1, 1, 4, 1);
+		api_key_field.set_text(Settings.get_string('api-key'));
+		this._grid.attach(api_key_field, 1, 1, 4, 1);
 		
-		let test_api_key_button = new Gtk.Button({label: 'Test'});
+		let test_api_key_button = new Gtk.Button({label: 'Test'});		
+	
 		test_api_key_button.connect('clicked', Lang.bind(this, function() {
-			let converter = new Converter(Settings.get_string('api-key'));
-			converter.is_api_key_valid(this._set_test_button_resulting_color);
+			let converter = new Converter('', '', api_key_field.text);
+			converter.is_api_key_valid(function(result_api_key_is_valid) {
+				/* set green is the api key is correct, or red otherwise */
+				//let color = new Gdk.Color();
+				let color;
+				if (result_api_key_is_valid) {
+					color = 'valid';
+				} else {
+					color = 'invalid';
+				}
+				api_key_field.set_name(color);
+				return;
+			});
 		}));
 		this._grid.attach(test_api_key_button, 5, 1, 1, 1);
 
@@ -96,16 +111,11 @@ CurrencyConverterSettingsWidget.prototype = {
 			this._treeViewModel.set(iter, 
 				[columns.IS_FAVORITE, columns.CODE, columns.NAME],
 				[is_favorite, Currencies.currencies[c]['code'], Currencies.currencies[c]['name']],
-				-1);
-			
+				-1);	
 		}
 		//this._currencyTreeView.model.set_sort_column_id(columns.IS_FAVORITE, Gtk.SortType.DESCENDING);
 		this._grid.attach(this._currencyTreeView, 0, 4, 6, 1);
 		return;
-	},
-	
-	_get_fav_currencies: function() {
-		return this.api_key_field.get_text();
 	},
 	
 	_completePrefsWidget: function() {
@@ -119,9 +129,15 @@ CurrencyConverterSettingsWidget.prototype = {
         return scollingWindow;
     },
 
-	_set_test_button_resulting_color: function(api_key_is_valid) {
-		let color = api_key_is_valid ? RGB(0, 255, 0) : RGB(255, 0, 0);
-	}
+	/*_set_test_button_resulting_color: function(api_key_is_valid) {
+		let color = new Clutter.Color();
+		if (api_key_is_valid) {
+			color.init(0, 255, 0, 0);
+		} else {
+			color.init(255, 0, 0, 0);
+		}
+		api_key_field.background_color = color;
+	}*/
 };
 
 function init() {

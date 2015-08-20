@@ -23,7 +23,7 @@ CurrencyConverterSettingsWidget.prototype = {
                                   column_spacing: 6 });
 
 		/* Link to currencylayer.com */
-		this._grid.attach(new Gtk.LinkButton({label: 'Currency Layer website', uri: 'https://currencylayer.com/'}), 0, 0, 6, 1);
+		this._grid.attach(new Gtk.LinkButton({label: 'Currency Layer website', uri: 'https://currencylayer.com/'}), 0, 0, 1, 1);
 
 		/* API key field */
 		let api_key_field = new Gtk.Entry({hexpand: true});
@@ -51,13 +51,15 @@ CurrencyConverterSettingsWidget.prototype = {
 
 		/* Favorite currencies field */
 		let fav_currencies = Settings.get_string('favorite-currencies').split(',');
-		this._grid.attach(new Gtk.Label({label: 'Favorite currencies'}), 0, 2, 2, 1);
+		this._grid.attach(new Gtk.Label({label: 'Favorite currencies'}), 0, 2, 1, 1);
 		let fav_currencies_field = new Gtk.Entry({hexpand: true, editable: false});
 		fav_currencies_field.set_text(Settings.get_string('favorite-currencies'));
-		this._grid.attach(fav_currencies_field, 2, 2, 4, 1);
+		this._grid.attach(fav_currencies_field, 1, 2, 5, 1);
 
 		/* Currency list */
+		let scrolledWindow = new Gtk.ScrolledWindow({hscrollbar_policy: Gtk.PolicyType.AUTOMATIC, hscrollbar_policy: Gtk.PolicyType.AUTOMATIC, visible: true, hexpand: true, vexpand: true});
 		this._currencyTreeView = new Gtk.TreeView();
+		scrolledWindow.add(this._currencyTreeView);
 		this._currencyTreeView.get_selection().set_mode(Gtk.SelectionMode.SINGLE);
 
 		let columns = { IS_FAVORITE: 0, CODE: 1, NAME: 2 };
@@ -113,7 +115,7 @@ CurrencyConverterSettingsWidget.prototype = {
 				-1);	
 		}
 		//this._currencyTreeView.model.set_sort_column_id(columns.IS_FAVORITE, Gtk.SortType.DESCENDING);
-		this._grid.attach(this._currencyTreeView, 0, 4, 6, 1);
+		this._grid.attach(scrolledWindow, 0, 4, 6, 1);
 		return;
 	},
 	

@@ -22,10 +22,15 @@ const Converter = new Lang.Class({
 		let request = Soup.Message.new('GET', url);
 		let session = new Soup.SessionAsync();
 		session.queue_message(request, Lang.bind(this, function(session, response) {
-			result = response.status_code == 200;
-			callback(result);
+			let valid = false;
+			if(response) {
+				if (response.status_code == 200) {
+					valid = Boolean(JSON.parse(response.response_body.data).success);
+				}
+			}
+			callback(valid);
 		}));
-		return result;
+		return valid;
 	},
 
 	setFromCurrency: function(currency) {

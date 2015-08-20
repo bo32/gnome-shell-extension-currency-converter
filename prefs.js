@@ -37,14 +37,13 @@ CurrencyConverterSettingsWidget.prototype = {
 			let converter = new Converter('', '', api_key_field.text);
 			converter.is_api_key_valid(function(result_api_key_is_valid) {
 				/* set green is the api key is correct, or red otherwise */
-				//let color = new Gdk.Color();
-				let color;
+				let c = new Gdk.Color();
 				if (result_api_key_is_valid) {
-					color = 'valid';
+					c = Gdk.Color.parse("green", c)[1];
 				} else {
-					color = 'invalid';
+					c = Gdk.Color.parse("red", c)[1];
 				}
-				api_key_field.set_name(color);
+				api_key_field.modify_fg(Gtk.StateType.NORMAL, c); 
 				return;
 			});
 		}));
@@ -129,15 +128,6 @@ CurrencyConverterSettingsWidget.prototype = {
         return scollingWindow;
     },
 
-	/*_set_test_button_resulting_color: function(api_key_is_valid) {
-		let color = new Clutter.Color();
-		if (api_key_is_valid) {
-			color.init(0, 255, 0, 0);
-		} else {
-			color.init(255, 0, 0, 0);
-		}
-		api_key_field.background_color = color;
-	}*/
 };
 
 function init() {

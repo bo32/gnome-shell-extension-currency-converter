@@ -16,6 +16,7 @@ const ShellEntry = imports.ui.shellEntry;
 const Prefs = Me.imports.prefs;
 const Convenience = Me.imports.convenience;
 const Settings = Convenience.getSettings();
+const Utils = Me.imports.utils;
 
 let fromValue;
 let resultLabel;
@@ -37,8 +38,6 @@ const CurrencyConverterMenuButton = new Lang.Class({
 		converter = new Converter(from_currency, to_currency, Settings.get_string('api-key'));
 		let hbox = new St.BoxLayout({ style_class: 'panel-status-menu-box' });
         let icon = new St.Icon({ icon_name: 'mail-send-receive-symbolic', style_class: 'system-actions-icon', 'icon_size': icon_size});
-		//let gicon = Gio.icon_new_for_string(Me.path + "/icons/money.svg");
-		//let icon = new St.Icon({gicon: gicon, icon_size: icon_size});
         hbox.add_child(icon);
 		hbox.add_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
 		this.actor.add_child(hbox);
@@ -127,7 +126,8 @@ const FromSubMenu = new Lang.Class({
 			} else {
 				nb_decimals = 5;
 			}
-			toMenu._setResult(parseFloat(result).toFixed(nb_decimals));
+			//toMenu._setResult(parseFloat(result).toFixed(nb_decimals));
+			toMenu._setResult(Utils.formatCurrencyNumber(parseFloat(result)));
 		} else {
 			toMenu._setResult(result);
 		}

@@ -10,7 +10,6 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Converter = Me.imports.converter.Converter;
 const Clutter = imports.gi.Clutter;
-//const Gio = imports.gi.Gio;
 const Shell = imports.gi.Shell;
 const ShellEntry = imports.ui.shellEntry;
 const Prefs = Me.imports.prefs;
@@ -205,6 +204,12 @@ function init() {
 }
 
 let menu;
+
+function restart() {
+	global.log('restart');
+	disable();
+	enable();
+}
 
 function enable() {
     menu = new CurrencyConverterMenuButton;

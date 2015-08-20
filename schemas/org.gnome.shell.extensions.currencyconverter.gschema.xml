@@ -4,7 +4,7 @@
   <schema path="/org/gnome/shell/extensions/currencyconverter/" id="org.gnome.shell.extensions.currencyconverter">
 
     <key type="s" name="favorite-currencies">
-        <default>'DKK,EUR,USD'</default>
+        <default>'EUR,USD'</default>
     </key>
 
 	<key type="s" name="api-key">

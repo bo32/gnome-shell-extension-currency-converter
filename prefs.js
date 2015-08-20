@@ -29,6 +29,11 @@ CurrencyConverterSettingsWidget.prototype = {
 		let api_key_field = new Gtk.Entry({hexpand: true});
 		this._grid.attach(new Gtk.Label({label: 'API Key'}), 0, 1, 1, 1);
 		api_key_field.set_text(Settings.get_string('api-key'));
+		api_key_field.connect('changed', Lang.bind(this, function() {
+			let c = new Gdk.Color();
+			c = Gdk.Color.parse("black", c)[1];
+			api_key_field.modify_fg(Gtk.StateType.NORMAL, c); 
+		}));
 		this._grid.attach(api_key_field, 1, 1, 4, 1);
 		
 		let test_api_key_button = new Gtk.Button({label: 'Test'});		
@@ -44,6 +49,7 @@ CurrencyConverterSettingsWidget.prototype = {
 					c = Gdk.Color.parse("red", c)[1];
 				}
 				api_key_field.modify_fg(Gtk.StateType.NORMAL, c); 
+				Settings.set_string('api-key', api_key_field.text);
 				return;
 			});
 		}));
@@ -57,7 +63,7 @@ CurrencyConverterSettingsWidget.prototype = {
 		this._grid.attach(fav_currencies_field, 1, 2, 5, 1);
 
 		/* Currency list */
-		let scrolledWindow = new Gtk.ScrolledWindow({hscrollbar_policy: Gtk.PolicyType.AUTOMATIC, hscrollbar_policy: Gtk.PolicyType.AUTOMATIC, visible: true, hexpand: true, vexpand: true});
+		let scrolledWindow = new Gtk.ScrolledWindow({vscrollbar_policy: Gtk.PolicyType.AUTOMATIC, hscrollbar_policy: Gtk.PolicyType.AUTOMATIC, visible: true, hexpand: true, vexpand: true});
 		this._currencyTreeView = new Gtk.TreeView();
 		scrolledWindow.add(this._currencyTreeView);
 		this._currencyTreeView.get_selection().set_mode(Gtk.SelectionMode.SINGLE);
@@ -120,14 +126,17 @@ CurrencyConverterSettingsWidget.prototype = {
 	},
 	
 	_completePrefsWidget: function() {
-        let scollingWindow = new Gtk.ScrolledWindow({
+        let scrollingWindow = new Gtk.ScrolledWindow({
                                  'hscrollbar-policy': Gtk.PolicyType.AUTOMATIC,
                                  'vscrollbar-policy': Gtk.PolicyType.AUTOMATIC,
                                  'hexpand': true, 'vexpand': true});
-        scollingWindow.add_with_viewport(this._grid);
-        scollingWindow.width_request = 700;
-        scollingWindow.show_all();
-        return scollingWindow;
+        scrollingWindow.add_with_viewport(this._grid);
+        scrollingWindow.width_request = 700;
+        scrollingWindow.show_all();
+		scrollingWindow.connect('destroy', Lang.bind(this, function() {
+			Me.imports.extension.restart();
+		}));
+        return scrollingWindow;
     },
 
 };

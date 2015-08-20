@@ -133,9 +133,9 @@ CurrencyConverterSettingsWidget.prototype = {
         scrollingWindow.add_with_viewport(this._grid);
         scrollingWindow.width_request = 700;
         scrollingWindow.show_all();
-		scrollingWindow.connect('destroy', Lang.bind(this, function() {
-			Me.imports.extension.restart();
-		}));
+		//scrollingWindow.connect('destroy', Lang.bind(this, function() {
+			//Me.imports.extension.restart();
+		//}));
         return scrollingWindow;
     },
 

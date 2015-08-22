@@ -1,19 +1,15 @@
-const Gio = imports.gi.Gio;
 const Gtk = imports.gi.Gtk;
 const Gdk = imports.gi.Gdk;
-const GLib = imports.gi.GLib;
 const GObject = imports.gi.GObject;
-const JsonParser = GObject.JsonParser;
 const Lang = imports.lang;
-const Soup = imports.gi.Soup;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Currencies = Me.imports.currencies;
 const Convenience = Me.imports.convenience;
 const Settings = Convenience.getSettings();
-const Clutter = imports.gi.Clutter;
 const Converter = Me.imports.converter.Converter;
+const _ = imports.gettext.domain(Me.uuid).gettext;
 
 CurrencyConverterSettingsWidget.prototype = {
 
@@ -23,11 +19,11 @@ CurrencyConverterSettingsWidget.prototype = {
                                   column_spacing: 6 });
 
 		/* Link to currencylayer.com */
-		this._grid.attach(new Gtk.LinkButton({label: 'Currency Layer website', uri: 'https://currencylayer.com/'}), 0, 0, 1, 1);
+		this._grid.attach(new Gtk.LinkButton({label: _('Currency Layer website'), uri: 'https://currencylayer.com/'}), 0, 0, 1, 1);
 
 		/* API key field */
 		let api_key_field = new Gtk.Entry({hexpand: true});
-		this._grid.attach(new Gtk.Label({label: 'API Key'}), 0, 1, 1, 1);
+		this._grid.attach(new Gtk.Label({label: _('API Key')}), 0, 1, 1, 1);
 		api_key_field.set_text(Settings.get_string('api-key'));
 		api_key_field.connect('changed', Lang.bind(this, function() {
 			let c = new Gdk.Color();
@@ -57,7 +53,7 @@ CurrencyConverterSettingsWidget.prototype = {
 
 		/* Favorite currencies field */
 		let fav_currencies = Settings.get_string('favorite-currencies').split(',');
-		this._grid.attach(new Gtk.Label({label: 'Favorite currencies'}), 0, 2, 1, 1);
+		this._grid.attach(new Gtk.Label({label: _('Favorite currencies')}), 0, 2, 1, 1);
 		let fav_currencies_field = new Gtk.Entry({hexpand: true, editable: false});
 		fav_currencies_field.set_text(Settings.get_string('favorite-currencies'));
 		this._grid.attach(fav_currencies_field, 1, 2, 5, 1);
@@ -74,7 +70,7 @@ CurrencyConverterSettingsWidget.prototype = {
 		this._treeViewModel.set_column_types([GObject.TYPE_BOOLEAN, GObject.TYPE_STRING, GObject.TYPE_STRING]);
 		this._currencyTreeView.model = this._treeViewModel;
 
-		let favoriteColumn = new Gtk.TreeViewColumn({'title': 'Favorite', 'expand': false, 'resizable': true, 'clickable': true});
+		let favoriteColumn = new Gtk.TreeViewColumn({'title': _('Favorite'), 'expand': false, 'resizable': true, 'clickable': true});
 		let favoriteCell = new Gtk.CellRendererToggle({'mode': Gtk.CellRendererMode.ACTIVATABLE});
 		favoriteCell.activatable = true;
 		favoriteColumn.pack_start(favoriteCell, true);
@@ -100,13 +96,13 @@ CurrencyConverterSettingsWidget.prototype = {
 		}));
 		this._currencyTreeView.append_column(favoriteColumn);
 
-		let codeColumn = new Gtk.TreeViewColumn({'title': 'Code', 'expand': false, 'resizable': true});
+		let codeColumn = new Gtk.TreeViewColumn({'title': _('Code'), 'expand': false, 'resizable': true});
 		let codeCell = new Gtk.CellRendererText();
 		codeColumn.pack_start(codeCell, true);
         codeColumn.add_attribute(codeCell, 'text', columns.CODE);
 		this._currencyTreeView.append_column(codeColumn);
 
-		let nameColumn = new Gtk.TreeViewColumn({'title': 'Name', 'expand': true, 'resizable': true});
+		let nameColumn = new Gtk.TreeViewColumn({'title': _('Name'), 'expand': true, 'resizable': true});
 		let nameCell = new Gtk.CellRendererText();
 		nameColumn.pack_start(nameCell, true);
         nameColumn.add_attribute(nameCell, 'text', columns.NAME);
@@ -133,9 +129,7 @@ CurrencyConverterSettingsWidget.prototype = {
         scrollingWindow.add_with_viewport(this._grid);
         scrollingWindow.width_request = 700;
         scrollingWindow.show_all();
-		//scrollingWindow.connect('destroy', Lang.bind(this, function() {
-			//Me.imports.extension.restart();
-		//}));
+		scrollingWindow.unparent();
         return scrollingWindow;
     },
 
@@ -143,7 +137,6 @@ CurrencyConverterSettingsWidget.prototype = {
 
 function init() {
 }
-
 
 function CurrencyConverterSettingsWidget() {
     this._init();
@@ -153,3 +146,4 @@ function buildPrefsWidget() {
     let widget = new CurrencyConverterSettingsWidget();
 	return widget._completePrefsWidget();
 }
+

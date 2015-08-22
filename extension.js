@@ -12,18 +12,18 @@ const Converter = Me.imports.converter.Converter;
 const Clutter = imports.gi.Clutter;
 const Shell = imports.gi.Shell;
 const ShellEntry = imports.ui.shellEntry;
-const Prefs = Me.imports.prefs;
 const Convenience = Me.imports.convenience;
 const Settings = Convenience.getSettings();
 const Utils = Me.imports.utils;
+const _ = imports.gettext.domain(Me.uuid).gettext;
 
 let fromValue;
 let resultLabel;
 let converter;
 let icon_size = 16;
-var fav_currencies = Settings.get_string('favorite-currencies').split(',');
-let from_currency = fav_currencies[0];
-let to_currency = fav_currencies[1];
+let fav_currencies;
+let from_currency;
+let to_currency;
 let width = 80;
 let fromMenu;
 let toMenu;
@@ -34,7 +34,10 @@ const CurrencyConverterMenuButton = new Lang.Class({
 
 	_init: function() {
         this.parent(0.0, 'currencyconverter');
-		converter = new Converter(from_currency, to_currency, Settings.get_string('api-key'));
+		fav_currencies = Settings.get_string('favorite-currencies').split(',');
+		from_currency = fav_currencies[0];
+		to_currency = fav_currencies[1];
+		//converter = new Converter(from_currency, to_currency, Settings.get_string('api-key'));
 		let hbox = new St.BoxLayout({ style_class: 'panel-status-menu-box' });
         let icon = new St.Icon({ icon_name: 'mail-send-receive-symbolic', style_class: 'system-actions-icon', 'icon_size': icon_size});
         hbox.add_child(icon);
@@ -134,8 +137,10 @@ const FromSubMenu = new Lang.Class({
 
 	_on_activate: function() {
 		if (!isNaN(this._getAmount()) && this._getAmount()) {
-			converter.setFromCurrency(fromMenu._getCurrency());
-			converter.setToCurrency(toMenu._getCurrency());
+			let from_currency = fromMenu._getCurrency();
+			let to_currency = toMenu._getCurrency();
+			let api_key = Settings.get_string('api-key');
+			converter = new Converter(from_currency, to_currency, api_key);
 			let result = converter.convert(this._getAmount(), this._printResult, this._error_handler);
 		} else {
 			this._printResult('');
@@ -173,7 +178,7 @@ const ReverseMenu = new Lang.Class({
 
 	_init: function() {
 		this.parent();
-		let reverseButton = new St.Button({label: 'Reverse', x_expand: true});
+		let reverseButton = new St.Button({label: _('Reverse'), x_expand: true});
 		reverseButton.connect('clicked', Lang.bind(this, function() {
 			let tmp = toMenu._getCurrency();
 			toMenu._setCurrency(fromMenu._getCurrency());
@@ -181,7 +186,7 @@ const ReverseMenu = new Lang.Class({
 			fromMenu._on_activate();
 		}));
 		this.actor.add(reverseButton);
-		let prefsButton = new St.Button({label: 'Preferences', x_expand: true});
+		let prefsButton = new St.Button({label: _('Preferences'), x_expand: true});
 		prefsButton.connect('clicked', Lang.bind(this, function() {
 			launch_extension_prefs(Me.uuid);
 		}));

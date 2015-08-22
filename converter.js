@@ -1,8 +1,8 @@
 const Soup = imports.gi.Soup;
 const Lang = imports.lang;
-//const ExtensionUtils = imports.misc.extensionUtils;
-//const Me = ExtensionUtils.getCurrentExtension();
-//const Prefs = Me.imports.prefs;
+
+let CUR_PREFIX = 'USD';
+let BASE_URL = 'http://www.apilayer.net/api/live?';
 
 const Converter = new Lang.Class({
 	Name: 'Converter',
@@ -18,17 +18,18 @@ const Converter = new Lang.Class({
 			return false;
 		}
 		let result = false;
-		let url = 'http://www.apilayer.net/api/live?access_key=' + this._api_key;
+		let url = BASE_URL + 'access_key=' + this._api_key;
 		let request = Soup.Message.new('GET', url);
 		let session = new Soup.SessionAsync();
+		let valid = false;
 		session.queue_message(request, Lang.bind(this, function(session, response) {
-			let valid = false;
 			if(response) {
 				if (response.status_code == 200) {
 					valid = Boolean(JSON.parse(response.response_body.data).success);
 				}
 			}
-			callback(valid);
+			if (callback)
+				callback(valid);
 		}));
 		return valid;
 	},
@@ -50,11 +51,11 @@ const Converter = new Lang.Class({
 	},
 
 	getToUSDCurrency: function() {
-		return 'USD' + this.toCurrency;
+		return CUR_PREFIX + this.toCurrency;
 	},
 
 	getFromUSDCurrency: function() {
-		return 'USD' + this.fromCurrency;
+		return CUR_PREFIX + this.fromCurrency;
 	},
 
 	convert: function(amount, callback, error_handler) {
@@ -63,17 +64,22 @@ const Converter = new Lang.Class({
 			return;
 		}
 
-		let url = 'http://www.apilayer.net/api/live?access_key=' + this._api_key + '&currencies='+this.fromCurrency+','+this.toCurrency+ '&format=1';
+		let url = BASE_URL + 'access_key=' + this._api_key + '&currencies='+this.fromCurrency+','+this.toCurrency+ '&format=1';
 		let request = Soup.Message.new('GET', url);
 		let session = new Soup.SessionAsync();
 
 		session.queue_message(request, Lang.bind(this, function(session, response) {
 			if(response.status_code == 200) {
-				let quotes = JSON.parse(response.response_body.data).quotes;
-				let result = parseFloat(amount) * parseFloat(quotes[this.getToUSDCurrency()]) / parseFloat(quotes[this.getFromUSDCurrency()]);
-				callback(result);
-				return;
+				if (Boolean(JSON.parse(response.response_body.data).success)) {
+					let quotes = JSON.parse(response.response_body.data).quotes;
+					let result = parseFloat(amount) * parseFloat(quotes[this.getToUSDCurrency()]) / parseFloat(quotes[this.getFromUSDCurrency()]);
+					callback(result);
+					return;
+				} else {
+					error_handler('Currency Converter cannot work.', 'The server was reached but returned an error. Please check your parameters.');
+				}
 			} else {
+				error_handler('Currency Converter cannot work.', "The server couldn't be reached.");
 				return;
 			}
 		}));

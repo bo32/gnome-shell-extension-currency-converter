@@ -3,11 +3,11 @@
 ###DESCRIPTION
 
 This gnome-shell extension allows you to quickly convert an amount from a currency to another one.
-The currency rates are the current ones proposed on the website [www.currencylayer.com](www.currencylayer.com). The implementation of the requests is based on the RESTful API available on the website, and ensures an accurate currency rate.
+The currency rates are the current ones proposed on the website www.currencylayer.com. The implementation of the requests is based on the RESTful API available on the website, and ensures an accurate currency rate.
 
 ###REQUIREMENTS
 
-Create your free account on [www.currencylayer.com](www.currencylayer.com). Insert then your personal and unique API key in the Preferences menu.
+Create your free account on www.currencylayer.com. Insert then your personal and unique API key in the Preferences menu.
 
 ###FIRST USE
 Go to the Preferences window to set your favorite currencies that will be available in the extension.

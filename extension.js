@@ -230,8 +230,7 @@ const ToMenu = new Lang.Class({
 
 	_init: function() {
 		this.parent(to_currency);
-		resultLabel = new St.Label({x_align: Clutter.ActorAlign.END, y_align: Clutter.ActorAlign.CENTER});
-		resultLabel.set_width(width);
+		resultLabel = new St.Label({x_align: Clutter.ActorAlign.END, y_align: Clutter.ActorAlign.CENTER, x_expand: true});
 		this.actor.insert_child_at_index(resultLabel, 4);
 	},
 

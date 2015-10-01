@@ -9,12 +9,14 @@ const Lang = imports.lang;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Converter = Me.imports.converter.Converter;
+const Currencies = Me.imports.currencies;
 const Clutter = imports.gi.Clutter;
 const Shell = imports.gi.Shell;
 const ShellEntry = imports.ui.shellEntry;
 const Convenience = Me.imports.convenience;
 const Settings = Convenience.getSettings();
 const Utils = Me.imports.utils;
+const Tweener = imports.ui.tweener;
 const _ = imports.gettext.domain(Me.uuid).gettext;
 
 let fromValue;
@@ -80,6 +82,14 @@ const CurrencySubMenu = new Lang.Class({
 			this.menuItems.push(currencyMenuItem);
 			this.buttons.push(currencyButton);
 		}
+		
+		if (Settings.get_boolean('allow-custom-currencies')) {
+			this.showCurrencyField = false;
+			this.expandIcon = PopupMenu.arrowIcon(St.Side.LEFT);
+			this.expandButton = new St.Button({child: this.expandIcon});
+			this.expandButton.connect('clicked', Lang.bind(this, this._show_currency_field));
+			this.actor.insert_child_at_index(this.expandButton, 1);
+		}
 
 		/* initial ornament */
 		for(let item in this.menuItems) {
@@ -87,35 +97,76 @@ const CurrencySubMenu = new Lang.Class({
 			this.menuItems[item].setOrnament(checked);
 		}
 	},
+	
+	_show_currency_field: function(show) {
+		// turn arrow
+		this.showCurrencyField = !this.showCurrencyField;
+		this.expandIcon = PopupMenu.arrowIcon(this.showCurrencyField ? St.Side.RIGHT : St.Side.LEFT);
+		this.expandButton.child = this.expandIcon;
+		
+		// display or hide the field
+		if (this.showCurrencyField) {
+			// this.currencyField is the field allowing the user to set manually the FROM currency. Not visible at first.
+			this.currencyField = new St.Entry();
+			this.currencyField.set_x_expand(false);
+			this.currencyField.set_width(45);
+			this.actor.insert_child_at_index(this.currencyField, 1);
+			this.currencyField.clutter_text.connect('activate', Lang.bind(this, fromMenu._on_activate));
+		} else {
+			this.actor.remove_child(this.currencyField);
+		}
+	},
 
 	_setCurrency: function(text) {
 		this.label.text = text;
 	},
-
-	_getCurrency: function() {
-		return this.label.text;
-	}
-});
-
-const FromSubMenu = new Lang.Class({
-	Name: 'FromSubMenu',
-	Extends: CurrencySubMenu,
 	
-	_init:function() {
-		this.parent(from_currency);
-		this.field = new St.Entry({ style_class: 'login-dialog-prompt-entry', can_focus: true});
-		this.field.set_x_expand(true);
-		this.field.set_width(width);
-		ShellEntry.addContextMenu(this.field);
-		this.clutter_text = this.field.get_clutter_text();
-		this.clutter_text.set_max_length(20);
-		this.clutter_text.connect('activate', Lang.bind(this, this._on_activate));
-		this.clutter_text.set_x_expand(true);
-		this.actor.add(this.field);
+	_set_custom_currency: function(text) {
+		if (this.showCurrencyField) {
+			this.currencyField.text = text;
+		}
+	},
+	
+	_get_custom_currency: function() {
+		if (this.showCurrencyField) {
+			return this.currencyField.clutter_text.text;
+		}
 	},
 
-	_getAmount: function() {
-		return this.clutter_text.text;
+	_getCurrency: function() {
+		if (!Settings.get_boolean('allow-custom-currencies')) {
+			return this.label.text;
+		}
+		
+		let currency;
+		if (this.showCurrencyField 
+				&& this.currencyField 
+				&& this.currencyField.clutter_text.text 
+				&& this._is_custom_currency_valid()) {
+			currency = this.currencyField.clutter_text.text;
+			this._validate_currency(true);
+		} else {
+			currency = this.label.text;
+			this._validate_currency(false);
+		}
+		return currency;
+	},
+	
+	_is_custom_currency_valid: function() {	
+		let custom_currency = this.currencyField.clutter_text.text;
+		for (let c in Currencies.currencies) {
+			if (Currencies.currencies[c]['code'] == custom_currency) {
+				return true;
+			}
+		}
+		return false;
+	},
+	
+	_validate_currency: function(valid) {
+		if (this.currencyField) {
+			let color = valid ? 'lawngreen' : 'red';
+			this.currencyField.set_style('color: ' + color + ';');
+		}
 	},
 	
 	_printResult: function(result) {
@@ -128,28 +179,49 @@ const FromSubMenu = new Lang.Class({
 			} else {
 				nb_decimals = 5;
 			}
-			//toMenu._setResult(parseFloat(result).toFixed(nb_decimals));
 			toMenu._setResult(Utils.formatCurrencyNumber(parseFloat(result)));
 		} else {
 			toMenu._setResult(result);
 		}
 	}, 
+	
+	_error_handler: function(title, message) {
+		Main.notify(title, message);
+	}	
+});
+
+const FromSubMenu = new Lang.Class({
+	Name: 'FromSubMenu',
+	Extends: CurrencySubMenu,
+	
+	_init:function() {
+		this.parent(from_currency);
+		
+		let fromField = new St.Entry({ style_class: 'login-dialog-prompt-entry', can_focus: true, x_align: Clutter.ActorAlign.END, y_align: Clutter.ActorAlign.CENTER, x_expand: true});
+		fromField.set_width(width);
+		ShellEntry.addContextMenu(fromField);
+		this.clutter_text = fromField.get_clutter_text();
+		this.clutter_text.set_max_length(20);
+		this.clutter_text.connect('activate', Lang.bind(this, this._on_activate));
+		this.clutter_text.set_x_expand(true);
+		this.actor.insert_child_at_index(fromField, 4);
+	},
+
+	_getAmount: function() {
+		return this.clutter_text.text;
+	},
 
 	_on_activate: function() {
-		if (!isNaN(this._getAmount()) && this._getAmount()) {
+		if (!isNaN(fromMenu._getAmount()) && fromMenu._getAmount() && fromMenu._getAmount() != 0) {
 			let from_currency = fromMenu._getCurrency();
 			let to_currency = toMenu._getCurrency();
 			let api_key = Settings.get_string('api-key');
 			converter = new Converter(from_currency, to_currency, api_key);
-			let result = converter.convert(this._getAmount(), this._printResult, this._error_handler);
+			let result = converter.convert(fromMenu._getAmount(), this._printResult, this._error_handler);
 		} else {
 			this._printResult('');
 		}
 	},
-	
-	_error_handler: function(title, message) {
-		Main.notify(title, message);
-	}
 });
 
 const ToMenu = new Lang.Class({
@@ -158,9 +230,9 @@ const ToMenu = new Lang.Class({
 
 	_init: function() {
 		this.parent(to_currency);
-		resultLabel = new St.Label({text: '', 'x_align': Clutter.ActorAlign.END});
+		resultLabel = new St.Label({x_align: Clutter.ActorAlign.END, y_align: Clutter.ActorAlign.CENTER});
 		resultLabel.set_width(width);
-		this.actor.add(resultLabel, {expand: true });
+		this.actor.insert_child_at_index(resultLabel, 4);
 	},
 
 	_setResult: function(text) {
@@ -180,9 +252,19 @@ const ReverseMenu = new Lang.Class({
 		this.parent();
 		let reverseButton = new St.Button({label: _('Reverse'), x_expand: true});
 		reverseButton.connect('clicked', Lang.bind(this, function() {
-			let tmp = toMenu._getCurrency();
-			toMenu._setCurrency(fromMenu._getCurrency());
-			fromMenu._setCurrency(tmp);
+			if (!toMenu.showCurrencyField && !fromMenu.showCurrencyField) {
+				let tmp = toMenu._getCurrency();
+				toMenu._setCurrency(fromMenu._getCurrency());
+				fromMenu._setCurrency(tmp);
+			} else {
+				if (!fromMenu.showCurrencyField)
+					fromMenu._show_currency_field(true);
+				if (!toMenu.showCurrencyField)
+					toMenu._show_currency_field(true);
+				let tmp = fromMenu._get_custom_currency();
+				fromMenu._set_custom_currency(toMenu._get_custom_currency());
+				toMenu._set_custom_currency(tmp);	
+			}
 			fromMenu._on_activate();
 		}));
 		this.actor.add(reverseButton);

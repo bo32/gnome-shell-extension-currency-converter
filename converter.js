@@ -69,16 +69,18 @@ const Converter = new Lang.Class({
 		let session = new Soup.SessionAsync();
 
 		session.queue_message(request, Lang.bind(this, function(session, response) {
-			if(response.status_code == 200) {
-				if (Boolean(JSON.parse(response.response_body.data).success)) {
-					let quotes = JSON.parse(response.response_body.data).quotes;
-					let result = parseFloat(amount) * parseFloat(quotes[this.getToUSDCurrency()]) / parseFloat(quotes[this.getFromUSDCurrency()]);
-					callback(result);
-					return;
-				} else {
-					error_handler('Currency Converter cannot work.', 'The server was reached but returned an error. Please check your parameters.');
+			try {
+				if(response.status_code == 200) {
+					if (Boolean(JSON.parse(response.response_body.data).success)) {
+						let quotes = JSON.parse(response.response_body.data).quotes;
+						let result = parseFloat(amount) * parseFloat(quotes[this.getToUSDCurrency()]) / parseFloat(quotes[this.getFromUSDCurrency()]);
+						callback(result);
+						return;
+					} else {
+						error_handler('Currency Converter cannot work.', 'The server was reached but returned an error. Please check your parameters.');
+					}
 				}
-			} else {
+			} catch (err) {
 				error_handler('Currency Converter cannot work.', "The server couldn't be reached.");
 				return;
 			}

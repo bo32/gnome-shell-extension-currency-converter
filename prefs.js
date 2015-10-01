@@ -50,13 +50,21 @@ CurrencyConverterSettingsWidget.prototype = {
 			});
 		}));
 		this._grid.attach(test_api_key_button, 5, 1, 1, 1);
+		
+		/* Allow the custom currencies */
+		this._grid.attach(new Gtk.Label({label: _('Allow custom currencies'), hexpand: true, halign: Gtk.Align.CENTER}), 0, 2, 1, 1);
+		let allow_custom_cur_switch = new Gtk.Switch({active: Settings.get_boolean('allow-custom-currencies'), halign: Gtk.Align.END});
+		allow_custom_cur_switch.connect('notify::active', function() {
+			Settings.set_boolean('allow-custom-currencies', allow_custom_cur_switch.active);
+		});
+		this._grid.attach(allow_custom_cur_switch, 5, 2, 1, 1);
 
 		/* Favorite currencies field */
 		let fav_currencies = Settings.get_string('favorite-currencies').split(',');
-		this._grid.attach(new Gtk.Label({label: _('Favorite currencies')}), 0, 2, 1, 1);
+		this._grid.attach(new Gtk.Label({label: _('Favorite currencies')}), 0, 3, 1, 1);
 		let fav_currencies_field = new Gtk.Entry({hexpand: true, editable: false});
 		fav_currencies_field.set_text(Settings.get_string('favorite-currencies'));
-		this._grid.attach(fav_currencies_field, 1, 2, 5, 1);
+		this._grid.attach(fav_currencies_field, 1, 3, 5, 1);
 
 		/* Currency list */
 		let scrolledWindow = new Gtk.ScrolledWindow({vscrollbar_policy: Gtk.PolicyType.AUTOMATIC, hscrollbar_policy: Gtk.PolicyType.AUTOMATIC, visible: true, hexpand: true, vexpand: true});
@@ -128,6 +136,7 @@ CurrencyConverterSettingsWidget.prototype = {
                                  'hexpand': true, 'vexpand': true});
         scrollingWindow.add_with_viewport(this._grid);
         scrollingWindow.width_request = 700;
+        scrollingWindow.height_request = 650;
         scrollingWindow.show_all();
 		scrollingWindow.unparent();
         return scrollingWindow;

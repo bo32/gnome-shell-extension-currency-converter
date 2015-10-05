@@ -128,9 +128,7 @@ const CurrencySubMenu = new Lang.Class({
 	},
 	
 	_get_custom_currency: function() {
-		if (this.showCurrencyField) {
-			return this.currencyField.clutter_text.text;
-		}
+		return this.currencyField.clutter_text.text;
 	},
 
 	_getCurrency: function() {

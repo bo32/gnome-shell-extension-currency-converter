@@ -17,6 +17,7 @@ const Convenience = Me.imports.convenience;
 const Settings = Convenience.getSettings();
 const Utils = Me.imports.utils;
 const Tweener = imports.ui.tweener;
+const Mainloop = imports.mainloop;
 const _ = imports.gettext.domain(Me.uuid).gettext;
 
 let fromValue;
@@ -41,7 +42,10 @@ const CurrencyConverterMenuButton = new Lang.Class({
 		to_currency = fav_currencies[1];
 		//converter = new Converter(from_currency, to_currency, Settings.get_string('api-key'));
 		let hbox = new St.BoxLayout({ style_class: 'panel-status-menu-box' });
-        let icon = new St.Icon({ icon_name: 'mail-send-receive-symbolic', style_class: 'system-actions-icon', 'icon_size': icon_size});
+        let icon = new St.Icon({ 
+        	icon_name: 'mail-send-receive-symbolic', 
+        	style_class: 'system-actions-icon', 
+        	'icon_size': icon_size});
         hbox.add_child(icon);
 		hbox.add_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
 		this.actor.add_child(hbox);
@@ -51,6 +55,14 @@ const CurrencyConverterMenuButton = new Lang.Class({
 		this.menu.addMenuItem(toMenu);
 		let reverseMenu = new ReverseMenu();
 		this.menu.addMenuItem(reverseMenu);
+		
+		// grab focus when the menu is opened
+        this.menu.connect('open-state-changed', Lang.bind(this, function(self, open) {
+    		Mainloop.timeout_add(20, Lang.bind(this, function() {
+        		if (open)
+					global.stage.set_key_focus(fromMenu._get_FromField());
+		   	}));
+		}));
 	},
 
     destroy: function() {
@@ -195,14 +207,23 @@ const FromSubMenu = new Lang.Class({
 	_init:function() {
 		this.parent(from_currency);
 		
-		let fromField = new St.Entry({ style_class: 'login-dialog-prompt-entry', can_focus: true, x_align: Clutter.ActorAlign.END, y_align: Clutter.ActorAlign.CENTER, x_expand: true});
-		fromField.set_width(width);
-		ShellEntry.addContextMenu(fromField);
-		this.clutter_text = fromField.get_clutter_text();
+		this.fromField = new St.Entry({ 
+			style_class: 'login-dialog-prompt-entry', 
+			x_align: Clutter.ActorAlign.END, 
+			y_align: Clutter.ActorAlign.CENTER, 
+			x_expand: true,
+			can_focus: true});
+		this.fromField.set_width(width);
+		ShellEntry.addContextMenu(this.fromField);
+		this.clutter_text = this.fromField.get_clutter_text();
 		this.clutter_text.set_max_length(20);
 		this.clutter_text.connect('activate', Lang.bind(this, this._on_activate));
 		this.clutter_text.set_x_expand(true);
-		this.actor.insert_child_at_index(fromField, 4);
+		this.actor.insert_child_at_index(this.fromField, 4);
+	},
+	
+	_get_FromField: function() {
+		return this.fromField;
 	},
 
 	_getAmount: function() {
@@ -228,7 +249,10 @@ const ToMenu = new Lang.Class({
 
 	_init: function() {
 		this.parent(to_currency);
-		resultLabel = new St.Label({x_align: Clutter.ActorAlign.END, y_align: Clutter.ActorAlign.CENTER, x_expand: true});
+		resultLabel = new St.Label({
+			x_align: Clutter.ActorAlign.END, 
+			y_align: Clutter.ActorAlign.CENTER, 
+			x_expand: true});
 		this.actor.insert_child_at_index(resultLabel, 4);
 	},
 

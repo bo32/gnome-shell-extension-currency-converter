@@ -26,5 +26,6 @@ Invalid custom currency (DKK is then used):
 
 ###CHANGELOG
 
-2015/10/01: option allowing to enter manually FROM and TO currencies.
+2015/10/01: option allowing to enter manually FROM and TO currencies.  
+2015/11/23: grabs the focus to the FROM field automatically when the menu is open.  
 

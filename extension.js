@@ -16,7 +16,6 @@ const ShellEntry = imports.ui.shellEntry;
 const Convenience = Me.imports.convenience;
 const Settings = Convenience.getSettings();
 const Utils = Me.imports.utils;
-const Tweener = imports.ui.tweener;
 const Mainloop = imports.mainloop;
 const _ = imports.gettext.domain(Me.uuid).gettext;
 
@@ -28,6 +27,7 @@ let fav_currencies;
 let from_currency;
 let to_currency;
 let width = 80;
+let expand_width = 45;
 let fromMenu;
 let toMenu;
 
@@ -118,10 +118,10 @@ const CurrencySubMenu = new Lang.Class({
 		
 		// display or hide the field
 		if (this.showCurrencyField) {
-			// this.currencyField is the field allowing the user to set manually the FROM currency. Not visible at first.
+			// this.currencyField is the field allowing the user to set manually the FROM/TO currency. Not visible at first.
 			this.currencyField = new St.Entry();
 			this.currencyField.set_x_expand(false);
-			this.currencyField.set_width(45);
+			this.currencyField.set_width(expand_width);
 			this.actor.insert_child_at_index(this.currencyField, 1);
 			this.currencyField.clutter_text.connect('activate', Lang.bind(this, fromMenu._on_activate));
 		} else {
@@ -209,14 +209,13 @@ const FromSubMenu = new Lang.Class({
 		
 		this.fromField = new St.Entry({ 
 			style_class: 'login-dialog-prompt-entry', 
-			x_align: Clutter.ActorAlign.END, 
+			x_align: Clutter.ActorAlign.FILL, 
 			y_align: Clutter.ActorAlign.CENTER, 
 			x_expand: true,
 			can_focus: true});
 		this.fromField.set_width(width);
 		ShellEntry.addContextMenu(this.fromField);
 		this.clutter_text = this.fromField.get_clutter_text();
-		this.clutter_text.set_max_length(20);
 		this.clutter_text.connect('activate', Lang.bind(this, this._on_activate));
 		this.clutter_text.set_x_expand(true);
 		this.actor.insert_child_at_index(this.fromField, 4);
@@ -250,10 +249,15 @@ const ToMenu = new Lang.Class({
 	_init: function() {
 		this.parent(to_currency);
 		resultLabel = new St.Label({
-			x_align: Clutter.ActorAlign.END, 
+			x_align: Clutter.ActorAlign.FILL, 
 			y_align: Clutter.ActorAlign.CENTER, 
-			x_expand: true});
-		this.actor.insert_child_at_index(resultLabel, 4);
+			x_expand: true,
+			width: fromMenu._get_FromField().width});
+		let clutter_text = resultLabel.get_clutter_text();
+		clutter_text.set_x_align(Clutter.ActorAlign.END);
+		clutter_text.set_x_expand(true);
+		this.actor.height = fromMenu.actor.height;
+		this.actor.insert_child_at_index(resultLabel, 4);		
 	},
 
 	_setResult: function(text) {
@@ -266,7 +270,7 @@ const ToMenu = new Lang.Class({
 });
 
 const ReverseMenu = new Lang.Class({
-	Name: 'FromMenu',
+	Name: 'ReverseMenu',
 	Extends: PopupMenu.PopupBaseMenuItem,
 
 	_init: function() {

@@ -10,10 +10,10 @@
 	<key type="s" name="api-key">
         <default>''</default>
     </key>
-    
+
     <key type="b" name="allow-custom-currencies">
     	<default>false</default>
-    </key> 
+    </key>
 
   </schema>
 </schemalist>

@@ -1,10 +1,10 @@
 {
-  "description": "Easy and fast way to convert your favorite currencies, via a short custom list of your most frequent currencies, and also the option to enter them manually.\nRequires a free registration on currencylayer.com and entering your own private key in the preferences.", 
-  "name": "Currency Converter", 
-  "settings-schema": "org.gnome.shell.extensions.currencyconverter", 
+  "description": "Easy and fast way to convert your favorite currencies, via a short custom list of your most frequent currencies, and also the option to enter them manually.\nRequires a free registration on currencylayer.com and entering your own private key in the preferences.",
+  "name": "Currency Converter",
+  "settings-schema": "org.gnome.shell.extensions.currencyconverter",
   "shell-version": [
-    "3.16", "3.18"
-  ], 
-  "url": "https://github.com/bo32/gnome-shell-extension-currency-converter", 
+    "3.16", "3.18", "3.20"
+  ],
+  "url": "https://github.com/bo32/gnome-shell-extension-currency-converter",
   "uuid": "currencyconverter@david.bonnal.gmail.com"
 }

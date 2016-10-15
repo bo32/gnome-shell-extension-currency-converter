@@ -16,16 +16,16 @@ When the extension starts, the SOURCE currency is based on the FIRST of the favo
 After changing the favorite currencies, refresh Gnome-shell by Alt+F2 and type 'r', or disable/enable in the extensions of Gnome Tweak Tool.
 
 ###CUSTOM CURRENCIES (optional)
-The extension allows the user to write the currency code of his choice (e.g. AUD for AUstralian Dollar). If the currency code doesn't exist, the extension will clear the current result and not perform anything.. If the custom currency is valid, it is highlighted in green, and red otherwise.
-
-###RESULT IN THE PANEL MENU
-In the preferences, the user can activate the option to display the result of a conversion in the panel menu bar (instead of the original extension's icon). The user can at anytime then clear the result in the panel menu with the Clear button in the bottom rigth corner of the extension menu. 
+The extension allows the user to write the currency code of his choice (e.g. AUD for AUstralian Dollar). If the currency code doesn't exist, the extension will clear the current result and not perform anything.. If the custom currency is valid, it is highlighted in green, and red otherwise. 
 
 Valid custom currency:  
 ![valid_custom](./valid_custom.png)
 
 Invalid custom currency (DKK is then used):  
 ![invalid_custom](./invalid_custom.png)
+
+###RESULT IN THE PANEL MENU
+In the preferences, the user can activate the option to display the result of a conversion in the panel menu bar (instead of the original extension's icon). The user can at anytime then clear the result in the panel menu with the Clear button in the bottom rigth corner of the extension menu.
 
 ###CHANGELOG
 

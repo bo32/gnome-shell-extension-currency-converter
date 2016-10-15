@@ -1,4 +1,5 @@
 const Soup = imports.gi.Soup;
+const Signals = imports.signals;
 const Lang = imports.lang;
 
 let CUR_PREFIX = 'USD';
@@ -7,10 +8,7 @@ let BASE_URL = 'http://www.apilayer.net/api/live?';
 const Converter = new Lang.Class({
 	Name: 'Converter',
 
-	_init: function(fromCurrency, toCurrency, api_key) {
-		this.fromCurrency = fromCurrency;
-		this.toCurrency = toCurrency;
-		this._api_key = api_key;
+	_init: function() {
 	},
 
 	is_api_key_valid: function(callback) {
@@ -50,6 +48,14 @@ const Converter = new Lang.Class({
 		return this.toCurrency;
 	},
 
+	setAPIKey: function(api_key) {
+		this._api_key = api_key;
+	},
+
+	getAPIKey: function() {
+		return this._api_key;
+	},
+
 	getToUSDCurrency: function() {
 		return CUR_PREFIX + this.toCurrency;
 	},
@@ -87,6 +93,4 @@ const Converter = new Lang.Class({
 		}));
 	}
 });
-
-
-
+Signals.addSignalMethods(Converter.prototype);

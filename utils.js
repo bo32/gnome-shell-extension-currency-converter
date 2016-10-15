@@ -17,3 +17,14 @@ function get_nb_decimals(amount) {
 		return 5;
 	}
 }
+
+function split_every_offset(string, offset) {
+	let result = new Array();
+	let i = 0;
+	
+	while(i < string.length) {
+		result.push(string.substr(i, offset));
+		i += 3;
+	}
+	return result;
+}

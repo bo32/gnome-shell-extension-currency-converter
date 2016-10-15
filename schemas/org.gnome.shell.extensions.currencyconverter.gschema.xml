@@ -7,11 +7,19 @@
         <default>'EUR,USD'</default>
     </key>
 
-	<key type="s" name="api-key">
+	  <key type="s" name="api-key">
         <default>''</default>
     </key>
 
     <key type="b" name="allow-custom-currencies">
+    	<default>false</default>
+    </key>
+
+    <key type="b" name="activate-auto-refresh">
+    	<default>false</default>
+    </key>
+
+    <key type="b" name="display-result-in-panel-menu">
     	<default>false</default>
     </key>
 

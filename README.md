@@ -29,3 +29,4 @@ Invalid custom currency (DKK is then used):
 2015/10/01: option allowing to enter manually FROM and TO currencies.  
 2015/11/23: grabs the focus to the FROM field automatically when the menu is open.  
 2016/05/08: version 3.20
+2016/09/25: update for the versions 3.21 and 3.22, and displaying the result in the top bar feature

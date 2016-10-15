@@ -176,13 +176,16 @@ const CurrencySubMenu = new Lang.Class({
 		let currency;
 		if (this.showCurrencyField
 				&& this.currencyField
-				&& this.currencyField.clutter_text.text
-				&& this._is_custom_currency_valid()) {
-			currency = this.currencyField.clutter_text.text;
-			this._validate_currency(true);
+				&& this.currencyField.clutter_text.text) {
+			if (this._is_custom_currency_valid()) {
+				currency = this.currencyField.clutter_text.text;
+				this._validate_currency(true);
+			} else {
+				currency = '';
+				this._validate_currency(false);
+			}
 		} else {
 			currency = this.label.text;
-			this._validate_currency(false);
 		}
 		return currency;
 	},
@@ -220,7 +223,11 @@ const CurrencySubMenu = new Lang.Class({
 		}
 
 		if (Settings.get_boolean('display-result-in-panel-menu')) {
-			menu.set_label();
+			if (result == '') {
+				restore_currency_icon();
+			} else {
+				menu.set_label();
+			}
 			// if (Settings.get_boolean('activate-auto-refresh')) {
 			// 	auto_refresh.start();
 			// }
@@ -263,14 +270,20 @@ const FromSubMenu = new Lang.Class({
 	},
 
 	_on_activate: function() {
-		if (!isNaN(fromMenu._getAmount()) && fromMenu._getAmount() && fromMenu._getAmount() != 0) {
+		if (!isNaN(fromMenu._getAmount()) 
+				&& fromMenu._getAmount() 
+				&& fromMenu._getAmount() != 0) {
 			let from_currency = fromMenu._getCurrency();
 			let to_currency = toMenu._getCurrency();
 			let api_key = Settings.get_string('api-key');
             this.converter.setFromCurrency(from_currency);
             this.converter.setToCurrency(to_currency);
-            this.converter.setAPIKey(api_key);
-			let result = this.converter.convert(fromMenu._getAmount(), this._printResult, this._error_handler);
+            this.converter.setAPIKey(api_key); 
+			if (from_currency == '' || to_currency == '') {
+				this._printResult('');
+			} else {
+				this.converter.convert(fromMenu._getAmount(), this._printResult, this._error_handler);
+			}
 		} else {
 			this._printResult('');
 		}
@@ -383,8 +396,7 @@ const ReverseMenu = new Lang.Class({
 			});
 			clearButton.connect('clicked', Lang.bind(this, function() {
 				// auto_refresh.stop();
-				menu.actor.remove_all_children();
-				menu.actor.add_child(get_converter_icon_box());
+				restore_currency_icon();
 			}));
 			this.actor.add(clearButton);
 		}
@@ -421,6 +433,11 @@ function get_converter_icon_box() {
 		'icon_size': icon_size});
 	hbox.add_child(icon);
 	return hbox;
+}
+
+function restore_currency_icon() {
+	menu.actor.remove_all_children();
+	menu.actor.add_child(get_converter_icon_box());
 }
 
 function init() {

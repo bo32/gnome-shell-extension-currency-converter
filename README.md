@@ -21,7 +21,7 @@ The extension allows the user to write the currency code of his choice (e.g. AUD
 Valid custom currency:  
 ![valid_custom](./valid_custom.png)
 
-Invalid custom currency (DKK is then used):  
+Invalid custom currency:  
 ![invalid_custom](./invalid_custom.png)
 
 ###RESULT IN THE PANEL MENU

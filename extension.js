@@ -68,13 +68,10 @@ const CurrencyConverterMenuButton = new Lang.Class({
 		   	}));
 		}));
 
-		// if (Settings.get_boolean('activate-auto-refresh')) {
-		// 	auto_refresh = new Autorefresh(0.5);
-		// 	auto_refresh.connect('autorefresh', Lang.bind(this, function() {
-		// 		this.converter.convert(fromMenu._getAmount(), fromMenu._printResult);
-		// 		Main.notify('Currency converter', 'Auto-refresh');
-		// 	}));
-		// }
+		if (Settings.get_int('init-amount') < 0) {
+			fromMenu._get_FromField().set_text(Settings.get_int('init-amount').toString());
+			fromMenu._on_activate();
+		}
 	},
 
     destroy: function() {

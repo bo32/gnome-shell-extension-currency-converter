@@ -20,26 +20,6 @@ CurrencyConverterSettingsWidget.prototype = {
 	_init: function() {
 		this.converter = new Converter();
 
-		// this.vbox = new Gtk.Box({
-		// 	orientation: Gtk.Orientation.VERTICAL,
-		// 	spacing: 6
-		// });
-		// let stack = new Gtk.Stack({
-        //     transition_type: Gtk.StackTransitionType.SLIDE_LEFT_RIGHT,
-        //     transition_duration: 500,
-        //     margin_left: 10,
-        //     margin_right: 10
-        // });
-        // let stack_switcher = new Gtk.StackSwitcher({
-        //     margin_left: 5,
-        //     margin_top: 5,
-        //     margin_bottom: 5,
-        //     margin_right: 5,
-        //     halign: Gtk.Align.CENTER,
-        //     stack: stack
-        // });
-
-
 		/****************************************
 		 * Currencies section
 		 ****************************************/
@@ -120,16 +100,27 @@ CurrencyConverterSettingsWidget.prototype = {
 		});
 		this._grid.attach(allow_custom_cur_switch, 5, 3, 1, 1);
 
+		/* Initial amount */
+		this._grid.attach(new Gtk.Label({
+			label: _('Initial amount (leave 0 to disable the functionality)'), 
+			hexpand: true, 
+			halign: Gtk.Align.START,
+			margin_left: MARGIN_LEFT
+		}), 0, 4, 5, 1);
+
+		this.init_amount_field = new Gtk.Entry({
+			hexpand: true
+		});
+		this.init_amount_field.set_text(Settings.get_int('init-amount').toString());
+		this._grid.attach(this.init_amount_field, 5, 4, 1, 1);
+
 		/* Favorite currencies field */
-		// Settings.set_string('favorite-currencies', 'DKK,EUR');
 		let fav_currencies = Settings.get_string('favorite-currencies').split(',');
-		// Settings.set_string('favorite-currencies', 'DKKEUR');
-		// let fav_currencies = Utils.split_every_offset(Settings.get_string('favorite-currencies'), 3);
 		this._grid.attach(new Gtk.Label({
 			label: _('Favorite currencies'),
 			halign: Gtk.Align.START,
 			margin_left: MARGIN_LEFT
-		}), 0, 4, 1, 1);
+		}), 0, 5, 1, 1);
 
 		let fav_currencies_field = new Gtk.Entry({
 			hexpand: true, 
@@ -187,7 +178,7 @@ CurrencyConverterSettingsWidget.prototype = {
 		// this.text_buffer.set_text(tmp_fav_currencies, -1);
 		fav_currencies_field.set_text(Settings.get_string('favorite-currencies'));
 
-		this._grid.attach(fav_currencies_field, 1, 4, 5, 1);
+		this._grid.attach(fav_currencies_field, 1, 5, 5, 1);
 
 		/* Currency list */
 		let scrolledWindow = new Gtk.ScrolledWindow({
@@ -273,7 +264,7 @@ CurrencyConverterSettingsWidget.prototype = {
 		}
 		//this._currencyTreeView.model.set_sort_column_id(columns.IS_FAVORITE, Gtk.SortType.DESCENDING);
 
-		this._grid.attach(scrolledWindow, 0, 5, 6, 1);
+		this._grid.attach(scrolledWindow, 0, 6, 6, 1);
 
 		// stack.add_titled(this._grid, "currencies", _("Currencies"));
 
@@ -337,6 +328,12 @@ CurrencyConverterSettingsWidget.prototype = {
         scrollingWindow.height_request = 650;
         scrollingWindow.show_all();
 		scrollingWindow.unparent();
+
+		scrollingWindow.connect('destroy', Lang.bind(this, function() {
+			if (Settings.get_int('init-amount').toString() !== this.init_amount_field.get_text()) {
+				Settings.set_int('init-amount', parseInt(this.init_amount_field.get_text()));
+			}
+		}));
         return scrollingWindow;
     },
 

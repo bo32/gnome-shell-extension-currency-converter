@@ -68,7 +68,7 @@ const CurrencyConverterMenuButton = new Lang.Class({
 		   	}));
 		}));
 
-		if (Settings.get_int('init-amount') < 0) {
+		if (Settings.get_int('init-amount') > 0) {
 			fromMenu._get_FromField().set_text(Settings.get_int('init-amount').toString());
 			fromMenu._on_activate();
 		}

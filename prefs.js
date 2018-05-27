@@ -18,6 +18,26 @@ const MARGIN_LEFT = 10;
 CurrencyConverterSettingsWidget.prototype = {
 
 	_init: function() {
+
+		this.vbox = new Gtk.Box({
+			orientation: Gtk.Orientation.VERTICAL,
+			spacing: 6
+		});
+		var stack = new Gtk.Stack({
+            transition_type: Gtk.StackTransitionType.SLIDE_LEFT_RIGHT,
+            transition_duration: 500,
+            margin_left: 10,
+            margin_right: 10
+        });
+        var stack_switcher = new Gtk.StackSwitcher({
+            margin_left: 5,
+            margin_top: 5,
+            margin_bottom: 5,
+            margin_right: 5,
+            halign: Gtk.Align.CENTER,
+            stack: stack
+		});
+
 		this.converter = new Converter();
 
 		/****************************************
@@ -29,47 +49,47 @@ CurrencyConverterSettingsWidget.prototype = {
                                   row_spacing: 6,
                                   column_spacing: 6 });
 
-		/* Link to currencylayer.com */
-		this._grid.attach(new Gtk.LinkButton({
-			label: _('Currency Layer website'), 
-			halign: Gtk.Align.CENTER,
-			uri: 'https://currencylayer.com/'}), 0, 0, 6, 1);
+		// /* Link to currencylayer.com */
+		// this._grid.attach(new Gtk.LinkButton({
+		// 	label: _('Currency Layer website'), 
+		// 	halign: Gtk.Align.CENTER,
+		// 	uri: 'https://currencylayer.com/'}), 0, 0, 6, 1);
 
-		/* API key field */
-		let api_key_field = new Gtk.Entry({hexpand: true});
-		this._grid.attach(new Gtk.Label({
-			label: _('API Key'),
-			halign: Gtk.Align.START,
-			margin_left: MARGIN_LEFT
-		}), 0, 1, 1, 1);
-		api_key_field.set_text(Settings.get_string('api-key'));
-		api_key_field.connect('changed', Lang.bind(this, function() {
-			let c = new Gdk.Color();
-			c = Gdk.Color.parse("black", c)[1];
-			api_key_field.modify_fg(Gtk.StateType.NORMAL, c);
-		}));
-		this._grid.attach(api_key_field, 1, 1, 4, 1);
+		// /* API key field */
+		// let api_key_field = new Gtk.Entry({hexpand: true});
+		// this._grid.attach(new Gtk.Label({
+		// 	label: _('API Key'),
+		// 	halign: Gtk.Align.START,
+		// 	margin_left: MARGIN_LEFT
+		// }), 0, 1, 1, 1);
+		// api_key_field.set_text(Settings.get_string('api-key'));
+		// api_key_field.connect('changed', Lang.bind(this, function() {
+		// 	let c = new Gdk.Color();
+		// 	c = Gdk.Color.parse("black", c)[1];
+		// 	api_key_field.modify_fg(Gtk.StateType.NORMAL, c);
+		// }));
+		// this._grid.attach(api_key_field, 1, 1, 4, 1);
 
-		let test_api_key_button = new Gtk.Button({label: 'Test'});
+		// let test_api_key_button = new Gtk.Button({label: 'Test'});
 
-		test_api_key_button.connect('clicked', Lang.bind(this, function() {
-			this.converter.setFromCurrency('');
-			this.converter.setToCurrency('');
-			this.converter.setAPIKey(api_key_field.text);
-			this.converter.is_api_key_valid(function(result_api_key_is_valid) {
-				/* set green is the api key is correct, or red otherwise */
-				let c = new Gdk.Color();
-				if (result_api_key_is_valid) {
-					c = Gdk.Color.parse("green", c)[1];
-				} else {
-					c = Gdk.Color.parse("red", c)[1];
-				}
-				api_key_field.modify_fg(Gtk.StateType.NORMAL, c);
-				Settings.set_string('api-key', api_key_field.text);
-				return;
-			});
-		}));
-		this._grid.attach(test_api_key_button, 5, 1, 1, 1);
+		// test_api_key_button.connect('clicked', Lang.bind(this, function() {
+		// 	this.converter.setFromCurrency('');
+		// 	this.converter.setToCurrency('');
+		// 	this.converter.setAPIKey(api_key_field.text);
+		// 	this.converter.is_api_key_valid(function(result_api_key_is_valid) {
+		// 		/* set green is the api key is correct, or red otherwise */
+		// 		let c = new Gdk.Color();
+		// 		if (result_api_key_is_valid) {
+		// 			c = Gdk.Color.parse("green", c)[1];
+		// 		} else {
+		// 			c = Gdk.Color.parse("red", c)[1];
+		// 		}
+		// 		api_key_field.modify_fg(Gtk.StateType.NORMAL, c);
+		// 		Settings.set_string('api-key', api_key_field.text);
+		// 		return;
+		// 	});
+		// }));
+		// this._grid.attach(test_api_key_button, 5, 1, 1, 1);
 
 		/* Display result in panel menu */
 		this._grid.attach(new Gtk.Label({
@@ -259,14 +279,14 @@ CurrencyConverterSettingsWidget.prototype = {
 			let iter = this._treeViewModel.append();
 			this._treeViewModel.set(iter,
 				[columns.IS_FAVORITE, columns.CODE, columns.NAME],
-				[is_favorite, Currencies.currencies[c]['code'], Currencies.currencies[c]['name']],
-				-1);
+				[is_favorite, Currencies.currencies[c]['code'], Currencies.currencies[c]['name']]
+				);
 		}
 		//this._currencyTreeView.model.set_sort_column_id(columns.IS_FAVORITE, Gtk.SortType.DESCENDING);
 
 		this._grid.attach(scrolledWindow, 0, 6, 6, 1);
 
-		// stack.add_titled(this._grid, "currencies", _("Currencies"));
+		stack.add_titled(this._grid, "currencies", _("Currencies"));
 
 		/****************************************
 		 * Panel Menu result section
@@ -308,8 +328,85 @@ CurrencyConverterSettingsWidget.prototype = {
 
 		// stack.add_titled(this._grid, "panel-menu-result", _("Panel menu result"));
 
-		// this.vbox.pack_start(stack_switcher, false, true, 0);
-		// this.vbox.pack_start(stack, true, true, 0);
+
+		/* API providers */
+		this._grid = new Gtk.Grid({ orientation: Gtk.Orientation.VERTICAL,
+			row_spacing: 6,
+			column_spacing: 6 });
+		
+		stack.add_titled(this._grid, "api-providers", _("API providers"));
+
+		this._grid.attach(new Gtk.Label({
+			label: _('API provider'),
+			halign: Gtk.Align.START,
+			margin_left: MARGIN_LEFT
+		}), 0, 0, 1, 1);
+
+		var providers_combobox = new Gtk.ComboBoxText({
+			hexpand: true
+		});
+		providers_combobox.append('currencylayer', 'Currency layer');
+		providers_combobox.append('openexchangerates', 'Open exchange rates'); // Unlimited plan 
+		providers_combobox.append('xignite', 'Xignite');
+		providers_combobox.append('xe', 'XE');
+		providers_combobox.append('oanda', 'Oanda');
+		providers_combobox.append('currencyconverterapi', 'Currency converter API');
+		providers_combobox.append('fixer', 'Fixer');
+		providers_combobox.append('exchangerate-api', 'ExchangeRate API');
+
+		var api_provider = Settings.get_string('api-provider');
+		providers_combobox.set_active_id(api_provider);
+
+		this._grid.attach(providers_combobox, 1, 0, 3, 1);
+
+		// this._grid.attach(new Gtk.LinkButton({
+		// 	label: _('API provider\'s website'), 
+		// 	halign: Gtk.Align.END,
+		// 	uri: 'https://currencylayer.com/'}), 5, 0, 1, 1);
+
+		let save_api_provider_button = new Gtk.Button({label: 'Save'});
+		this._grid.attach(save_api_provider_button, 5, 0, 1, 1);
+		save_api_provider_button.connect('clicked', Lang.bind(this, function() {
+			Settings.set_string('api-provider', providers_combobox.get_active_id());
+		}));
+
+		/* API key field */
+		let api_key_field = new Gtk.Entry({hexpand: true});
+		this._grid.attach(new Gtk.Label({
+			label: _('API Key'),
+			halign: Gtk.Align.START,
+			margin_left: MARGIN_LEFT
+		}), 0, 1, 1, 1);
+		api_key_field.set_text(Settings.get_string('api-key'));
+		// api_key_field.connect('changed', Lang.bind(this, function() {
+		// 	let c = new Gdk.Color();
+		// 	c = Gdk.Color.parse("black", c)[1];
+		// 	api_key_field.modify_fg(Gtk.StateType.NORMAL, c);
+		// }));
+		this._grid.attach(api_key_field, 1, 1, 3, 1);
+
+		let test_api_key_button = new Gtk.Button({label: 'Save'});
+
+		test_api_key_button.connect('clicked', Lang.bind(this, function() {
+			// this.converter.setAPIKey(api_key_field.text);
+			// this.converter.is_api_key_valid(function(result_api_key_is_valid) {
+			// 	/* set green is the api key is correct, or red otherwise */
+			// 	let c = new Gdk.Color();
+			// 	if (result_api_key_is_valid) {
+			// 		c = Gdk.Color.parse("green", c)[1];
+			// 	} else {
+			// 		c = Gdk.Color.parse("red", c)[1];
+			// 	}
+			// 	api_key_field.modify_fg(Gtk.StateType.NORMAL, c);
+				Settings.set_string('api-key', api_key_field.text);
+				// return;
+			// });
+		}));
+		this._grid.attach(test_api_key_button, 5, 1, 1, 1);
+
+
+		this.vbox.pack_start(stack_switcher, false, true, 0);
+		this.vbox.pack_start(stack, true, true, 0);
 
 		return;
 	},
@@ -323,7 +420,7 @@ CurrencyConverterSettingsWidget.prototype = {
                                  'hscrollbar-policy': Gtk.PolicyType.AUTOMATIC,
                                  'vscrollbar-policy': Gtk.PolicyType.AUTOMATIC,
                                  'hexpand': true, 'vexpand': true});
-        scrollingWindow.add_with_viewport(this._grid);
+        scrollingWindow.add_with_viewport(this.vbox);
         scrollingWindow.width_request = 700;
         scrollingWindow.height_request = 650;
         scrollingWindow.show_all();

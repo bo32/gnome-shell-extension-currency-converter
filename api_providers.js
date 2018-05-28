@@ -227,3 +227,41 @@ var Xignite = new Lang.Class({
     }
 
 });
+
+var Fixer = new Lang.Class({
+    Name: 'Fixer',
+    Extends: APIProvider,
+
+    _init: function(api_key) {
+        this.parent(api_key);
+        this.base_url = 'http://data.fixer.io/api/latest';
+    },
+
+    get_convert_url: function(from_currency, to_currency, amount) {
+        this.from = from_currency;
+        this.to = to_currency;
+        this.amount = amount;
+
+        return this.base_url 
+            + '?access_key=' + this.api_key;
+    },
+
+    get_check_api_key_url: function() {
+        return this.base_url 
+            + 'Symbol=' + 'EUR' + 'USD' 
+            + '&_token=' + this.api_key;
+    },
+
+    get_result_from_json: function(json) {
+        return json.rates[this.to] / json.rates[this.from] * this.amount;
+    },
+
+    is_api_key_valid_from_json: function(json) {
+        return json.Outcome === 'Success';
+    },
+
+    get_error_message: function(json) {
+        return json;
+    }
+
+});

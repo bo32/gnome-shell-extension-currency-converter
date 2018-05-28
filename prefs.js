@@ -10,7 +10,7 @@ const Currencies = Me.imports.currencies;
 const Utils = Me.imports.utils;
 const Convenience = Me.imports.convenience;
 const Settings = Convenience.getSettings();
-const Converter = Me.imports.converter.Converter;
+// const Converter = Me.imports.converter.Converter;
 const _ = imports.gettext.domain(Me.uuid).gettext;
 
 const MARGIN_LEFT = 10;
@@ -38,7 +38,7 @@ CurrencyConverterSettingsWidget.prototype = {
             stack: stack
 		});
 
-		this.converter = new Converter();
+		// this.converter = new Converter();
 
 		/****************************************
 		 * Currencies section

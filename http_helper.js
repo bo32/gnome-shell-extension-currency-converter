@@ -1,6 +1,5 @@
 const Soup = imports.gi.Soup;
 const Lang = imports.lang;
-const Main = imports.ui.main;
 
 var HttpHelper = new Lang.Class({
 	Name: 'HttpHelper',
@@ -8,7 +7,7 @@ var HttpHelper = new Lang.Class({
 	_init: function() {
     },
     
-    send_request: function(url, callback) {
+    send_request: function(url, callback, error_callback) {
         let request = Soup.Message.new('GET', url);
 		let session = new Soup.SessionAsync();
 
@@ -19,11 +18,11 @@ var HttpHelper = new Lang.Class({
                     callback(json);
 				} else {
 					let json = JSON.parse(response.response_body.data);
-					Main.notify('Currency Converter error.', 'Status code ' + response.status_code + ' when reaching ' + url);
+					error_callback('Currency Converter error.', 'Status code ' + response.status_code + ' when reaching ' + url);
 					return;
 				}
 			} catch (err) {
-				Main.notify('Currency Converter error.', 'Cannot reach ' + url);
+				error_callback('Currency Converter error.', 'Cannot reach ' + url);
 				return;
             }
         }));

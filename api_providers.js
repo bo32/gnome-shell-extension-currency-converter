@@ -1,6 +1,7 @@
 const Soup = imports.gi.Soup;
 const Signals = imports.signals;
 const Lang = imports.lang;
+const Main = imports.ui.main;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
@@ -114,14 +115,15 @@ var OpenExchangeRates = new Lang.Class({
     },
 
     _get_plan: function() {
-        
         var http_helper = new HttpHelper();
         http_helper.send_request(this.base_url 
             + 'usage.json'
             + '?app_id=' + this.api_key, 
             Lang.bind(this, function(json) {
                 this.plan = json.data.plan.name;
-            }));
+            }), function(error, description) {
+                Main.notify(error, description);
+            });
     },
 
     get_check_api_key_url: function() {

@@ -82,6 +82,38 @@ var CurrencyLayer = new Lang.Class({
     }
 });
 
+var ExchangeRateApi = new Lang.Class({
+    Name: 'ExchangeRateApi',
+    Extends: APIProvider,
+
+    _init: function(api_key) {
+        this.parent(api_key);
+        this.base_url = 'https://v3.exchangerate-api.com/';
+    },
+
+    get_convert_url: function(from_currency, to_currency, amount) {
+        this.amount = amount;
+
+        return this.base_url 
+            + 'pair/'
+            + this.api_key + '/'
+            + from_currency + '/'
+            + to_currency;
+    },
+
+    get_result_from_json: function(json) {
+        return json.rate * this.amount;
+    },
+
+    is_api_key_valid_from_json: function(json) {
+        return json.result === 'success';
+    },
+
+    get_error_message: function(json) {
+        return json.result + ' - ' + json.error;
+    }
+});
+
 var OpenExchangeRates = new Lang.Class({
     Name: 'OpenExchangeRates',
     Extends: APIProvider,

@@ -38,9 +38,9 @@ var APIProviderFactory = new Lang.Class({
             case 'fixer':
                 provider = new APIProviders.Fixer(this.api_key);
                 break;
-            // case 'exchangerate-api':
-            //     provider = new APIProviders.ExchangeRateAPI(this.api_key);
-            //     break;
+            case 'exchangerate-api':
+                provider = new APIProviders.ExchangeRateApi(this.api_key);
+                break;
         }
         return provider;
     }

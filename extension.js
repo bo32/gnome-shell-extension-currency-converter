@@ -268,19 +268,24 @@ const FromSubMenu = new Lang.Class({
 	},
 
 	_on_activate: function() {
-		if (!isNaN(fromMenu._getAmount()) 
-				&& fromMenu._getAmount() 
-				&& fromMenu._getAmount() != 0) {
+		var amount = fromMenu._getAmount();
+		if (amount.indexOf(",") > -1) {
+			amount = amount.replace(",", ".");
+		}
+
+		if (!isNaN(amount) 
+				&& amount 
+				&& amount != 0) {
 			let from_currency = fromMenu._getCurrency();
 			let to_currency = toMenu._getCurrency();
 			let api_key = Settings.get_string('api-key');
             this.converter.setFromCurrency(from_currency);
-            this.converter.setToCurrency(to_currency);
-            // this.converter.setAPIKey(api_key); 
+			this.converter.setToCurrency(to_currency);
+			
 			if (from_currency == '' || to_currency == '') {
 				this._printResult('');
 			} else {
-				this.converter.convert(fromMenu._getAmount(), this._printResult, this._error_handler);
+				this.converter.convert(amount, this._printResult, this._error_handler);
 			}
 		} else {
 			this._printResult('');
@@ -307,7 +312,7 @@ const ToMenu = new Lang.Class({
 	},
 
 	_setResult: function(text) {
-		resultLabel.text = text;
+		resultLabel.text = text.replace(",", ".");
 	},
 
 	_getResult: function() {

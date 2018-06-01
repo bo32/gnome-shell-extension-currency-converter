@@ -346,11 +346,11 @@ CurrencyConverterSettingsWidget.prototype = {
 			hexpand: true
 		});
 		providers_combobox.append('currencylayer', 'Currency layer');
-		providers_combobox.append('openexchangerates', 'Open exchange rates'); // Unlimited plan 
-		providers_combobox.append('xignite', 'Xignite');
-		providers_combobox.append('xe', 'XE');
-		providers_combobox.append('oanda', 'Oanda');
-		providers_combobox.append('currencyconverterapi', 'Currency converter API');
+		providers_combobox.append('openexchangerates', 'Open exchange rates (only Free plan tested)'); 
+		// providers_combobox.append('xignite', 'Xignite');
+		// providers_combobox.append('xe', 'XE');
+		// providers_combobox.append('oanda', 'Oanda');
+		// providers_combobox.append('currencyconverterapi', 'Currency converter API');
 		providers_combobox.append('fixer', 'Fixer');
 		providers_combobox.append('exchangerate-api', 'ExchangeRate API');
 

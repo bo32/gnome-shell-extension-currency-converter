@@ -7,7 +7,7 @@
         <default>'EUR,USD'</default>
     </key>
 
-	  <key type="s" name="api-key">
+	<key type="s" name="api-key">
         <default>''</default>
     </key>
 
@@ -25,6 +25,10 @@
 
     <key type="i" name="init-amount">
         <default>0</default>
+    </key>
+
+    <key type="s" name="api-provider">
+        <default>'currencylayer'</default>
     </key>
 
   </schema>

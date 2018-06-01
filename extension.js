@@ -18,7 +18,8 @@ const ShellEntry = imports.ui.shellEntry;
 const Convenience = Me.imports.convenience;
 const Settings = Convenience.getSettings();
 const Utils = Me.imports.utils;
-// const Autorefresh = Me.imports.autorefresh.Autorefresh;
+const APIProviderFactory = Me.imports.api_provider_factory.APIProviderFactory;
+const APIProvider = Me.imports.api_providers.APIProvider;
 const Mainloop = imports.mainloop;
 const _ = imports.gettext.domain(Me.uuid).gettext;
 
@@ -275,7 +276,7 @@ const FromSubMenu = new Lang.Class({
 			let api_key = Settings.get_string('api-key');
             this.converter.setFromCurrency(from_currency);
             this.converter.setToCurrency(to_currency);
-            this.converter.setAPIKey(api_key); 
+            // this.converter.setAPIKey(api_key); 
 			if (from_currency == '' || to_currency == '') {
 				this._printResult('');
 			} else {
@@ -449,7 +450,9 @@ function restart() {
 }
 
 function enable() {
-    converter = new Converter();
+	let api_provider_factory = new APIProviderFactory();
+	let api_provider = api_provider_factory.get_api_provider();
+    converter = new Converter(api_provider);
     menu = new CurrencyConverterMenuButton(converter);
     Main.panel.addToStatusArea('currencyconverter', menu);
 }

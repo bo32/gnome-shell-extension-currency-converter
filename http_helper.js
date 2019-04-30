@@ -1,13 +1,12 @@
 const Soup = imports.gi.Soup;
 const Lang = imports.lang;
 
-var HttpHelper = new Lang.Class({
-	Name: 'HttpHelper',
-
-	_init: function() {
-    },
+var HttpHelper = class HttpHelper {
+	
+	constructor() {
+    }
     
-    send_request: function(url, callback, error_callback) {
+    send_request(url, callback, error_callback) {
         let request = Soup.Message.new('GET', url);
 		let session = new Soup.SessionAsync();
 
@@ -27,4 +26,4 @@ var HttpHelper = new Lang.Class({
             }
         }));
     }
-});
+};

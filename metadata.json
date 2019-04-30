@@ -3,8 +3,8 @@
   "name": "Currency Converter",
   "settings-schema": "org.gnome.shell.extensions.currencyconverter",
   "shell-version": [
-    "3.16", "3.18", "3.20", "3.21", "3.22"
+    "3.32"
   ],
   "url": "https://github.com/bo32/gnome-shell-extension-currency-converter",
-  "uuid": "currencyconverter@david.bonnal.gmail.com"
+  "uuid": "gnome-shell-extension-currency-converter"
 }

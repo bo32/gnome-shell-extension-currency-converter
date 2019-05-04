@@ -34,6 +34,9 @@ var expand_width = 45;
 var fromMenu;
 var toMenu;
 
+var menu;
+var converter;
+
 const CurrencyConverterMenuButton = class CurrencyConverterMenuButton extends PanelMenu.Button {
 
 	constructor(converter) {
@@ -74,20 +77,19 @@ const CurrencyConverterMenuButton = class CurrencyConverterMenuButton extends Pa
     destroy() {
 		this.parent();
     }
-
-    set_label() {
-		var value = toMenu._getResult() + ' ' + toMenu._getCurrency();
-        var hbox = new St.BoxLayout({ style_class: 'panel-status-menu-box' });
-        var label = new St.Label({
-			text: value,
-			x_align: Clutter.ActorAlign.FILL,
-			y_align: Clutter.ActorAlign.CENTER
-		});
-        hbox.add_child(label);
-        this.actor.remove_all_children();
-		this.actor.add_child(hbox);
-    }
 };
+
+function set_label(label) {
+	var hbox = new St.BoxLayout({ style_class: 'panel-status-menu-box' });
+	var label = new St.Label({
+		text: label,
+		x_align: Clutter.ActorAlign.FILL,
+		y_align: Clutter.ActorAlign.CENTER
+	});
+	hbox.add_child(label);
+	menu.actor.remove_all_children();
+	menu.actor.add_child(hbox);
+}
 
 const CurrencySubMenu = class CurrencySubMenu extends PopupMenu.PopupSubMenuMenuItem {
 
@@ -201,14 +203,6 @@ const CurrencySubMenu = class CurrencySubMenu extends PopupMenu.PopupSubMenuMenu
 
 	_printResult(result) {
 		if(result) {
-			var nb_decimals;
-			if(result > 1) {
-				nb_decimals = 2;
-			} else if (result > 0.01) {
-				nb_decimals = 3;
-			} else {
-				nb_decimals = 5;
-			}
 			toMenu._setResult(Utils.formatCurrencyNumber(parseFloat(result)));
 		} else {
 			toMenu._setResult(result);
@@ -218,11 +212,8 @@ const CurrencySubMenu = class CurrencySubMenu extends PopupMenu.PopupSubMenuMenu
 			if (result == '') {
 				restore_currency_icon();
 			} else {
-				menu.set_label();
+				set_label(toMenu._getResult() + ' ' + toMenu._getCurrency());
 			}
-			// if (Settings.get_boolean('activate-auto-refresh')) {
-			// 	auto_refresh.start();
-			// }
 		}
 	}
 
@@ -433,9 +424,6 @@ function restore_currency_icon() {
 
 function init() {
 }
-
-var menu;
-var converter;
 
 function restart() {
 	disable();

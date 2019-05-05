@@ -6,15 +6,15 @@ const APIProviders = Me.imports.api_providers;
 const Convenience = Me.imports.convenience;
 const Settings = Convenience.getSettings();
 
-var APIProviderFactory = new Lang.Class({
-    Name: 'APIProviderFactory',
+var APIProviderFactory = class APIProviderFactory {
     
-    _init: function() {
+    
+    constructor() {
         this.api_provider = Settings.get_string('api-provider');
         this.api_key = Settings.get_string('api-key');
-    },
+    }
 
-    get_api_provider: function() {
+    get_api_provider() {
         var provider;
         switch(this.api_provider) {
             case 'currencylayer':
@@ -45,4 +45,4 @@ var APIProviderFactory = new Lang.Class({
         return provider;
     }
 
-});
+};

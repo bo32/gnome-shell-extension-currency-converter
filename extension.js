@@ -23,25 +23,24 @@ const APIProvider = Me.imports.api_providers.APIProvider;
 const Mainloop = imports.mainloop;
 const _ = imports.gettext.domain(Me.uuid).gettext;
 
-let fromValue;
-let resultLabel;
-// let converter;
-let icon_size = 16;
-let fav_currencies;
-let from_currency;
-let to_currency;
-let width = 80;
-let expand_width = 45;
-let fromMenu;
-let toMenu;
-// let auto_refresh;
+var fromValue;
+var resultLabel;
+var icon_size = 16;
+var fav_currencies;
+var from_currency;
+var to_currency;
+var width = 80;
+var expand_width = 45;
+var fromMenu;
+var toMenu;
 
-const CurrencyConverterMenuButton = new Lang.Class({
-    Name: 'CurrencyConverter.CurrencyConverterMenuButton',
-    Extends: PanelMenu.Button,
+var menu;
+var converter;
 
-	_init: function(converter) {
-        this.parent(0.0, 'currencyconverter');
+const CurrencyConverterMenuButton = class CurrencyConverterMenuButton extends PanelMenu.Button {
+
+	constructor(converter) {
+        super(0.0, 'currencyconverter');
 		this._settings_changed = false;
 		Settings.connect('changed', Lang.bind(this, function() {
 			if (this._settings_changed !== true)
@@ -58,7 +57,7 @@ const CurrencyConverterMenuButton = new Lang.Class({
 		this.menu.addMenuItem(fromMenu);
 		toMenu = new ToMenu();
 		this.menu.addMenuItem(toMenu);
-		let reverseMenu = new ReverseMenu();
+		var reverseMenu = new ReverseMenu();
 		this.menu.addMenuItem(reverseMenu);
 
 		// grab focus when the menu is opened
@@ -73,42 +72,39 @@ const CurrencyConverterMenuButton = new Lang.Class({
 			fromMenu._get_FromField().set_text(Settings.get_int('init-amount').toString());
 			fromMenu._on_activate();
 		}
-	},
+	}
 
-    destroy: function() {
+    destroy() {
 		this.parent();
-    },
+    }
+};
 
-    set_label: function() {
-		let value = toMenu._getResult() + ' ' + toMenu._getCurrency();
-        let hbox = new St.BoxLayout({ style_class: 'panel-status-menu-box' });
-        let label = new St.Label({
-			text: value,
-			x_align: Clutter.ActorAlign.FILL,
-			y_align: Clutter.ActorAlign.CENTER
-		});
-        hbox.add_child(label);
-        this.actor.remove_all_children();
-		this.actor.add_child(hbox);
-    },
-});
+function set_label(label) {
+	var hbox = new St.BoxLayout({ style_class: 'panel-status-menu-box' });
+	var label = new St.Label({
+		text: label,
+		x_align: Clutter.ActorAlign.FILL,
+		y_align: Clutter.ActorAlign.CENTER
+	});
+	hbox.add_child(label);
+	menu.actor.remove_all_children();
+	menu.actor.add_child(hbox);
+}
 
-const CurrencySubMenu = new Lang.Class({
-	Name: 'CurrencyConverter.CurrencyMenu',
-    Extends: PopupMenu.PopupSubMenuMenuItem,
+const CurrencySubMenu = class CurrencySubMenu extends PopupMenu.PopupSubMenuMenuItem {
 
-	_init: function(currency) {
-		this.parent(currency);
+	constructor(currency) {
+		super(currency);
 		/* add menus */
 		this.menuItems = new Array();
 		this.buttons = new Array();
-		for(let currency in fav_currencies) {
-			let currencyMenuItem = new PopupMenu.PopupBaseMenuItem({activate: false});
-			let currencyButton = new St.Button({label: fav_currencies[currency], x_align: 0, x_expand: true})
+		for(var currency in fav_currencies) {
+			var currencyMenuItem = new PopupMenu.PopupBaseMenuItem({activate: false});
+			var currencyButton = new St.Button({label: fav_currencies[currency], x_align: 0, x_expand: true})
     	    currencyButton.connect('clicked', Lang.bind(this, function() {
 				this._setCurrency(currencyButton.label);
-				for(let item in this.menuItems) {
-					let checked = this.buttons[item].label == this._getCurrency();
+				for(var item in this.menuItems) {
+					var checked = this.buttons[item].label == this._getCurrency();
 					this.menuItems[item].setOrnament(checked);
 				}
 			}));
@@ -127,13 +123,13 @@ const CurrencySubMenu = new Lang.Class({
 		}
 
 		/* initial ornament */
-		for(let item in this.menuItems) {
-			let checked = this.buttons[item].label == this._getCurrency();
+		for(var item in this.menuItems) {
+			var checked = this.buttons[item].label == this._getCurrency();
 			this.menuItems[item].setOrnament(checked);
 		}
-	},
+	}
 
-	_show_currency_field: function(show) {
+	_show_currency_field(show) {
 		// turn arrow
 		this.showCurrencyField = !this.showCurrencyField;
 		this.expandIcon = PopupMenu.arrowIcon(this.showCurrencyField ? St.Side.RIGHT : St.Side.LEFT);
@@ -150,28 +146,28 @@ const CurrencySubMenu = new Lang.Class({
 		} else {
 			this.actor.remove_child(this.currencyField);
 		}
-	},
+	}
 
-	_setCurrency: function(text) {
+	_setCurrency(text) {
 		this.label.text = text;
-	},
+	}
 
-	_set_custom_currency: function(text) {
+	_set_custom_currency(text) {
 		if (this.showCurrencyField) {
 			this.currencyField.text = text;
 		}
-	},
+	}
 
-	_get_custom_currency: function() {
+	_get_custom_currency() {
 		return this.currencyField.clutter_text.text;
-	},
+	}
 
-	_getCurrency: function() {
+	_getCurrency() {
 		if (!Settings.get_boolean('allow-custom-currencies')) {
 			return this.label.text;
 		}
 
-		let currency;
+		var currency;
 		if (this.showCurrencyField
 				&& this.currencyField
 				&& this.currencyField.clutter_text.text) {
@@ -186,35 +182,27 @@ const CurrencySubMenu = new Lang.Class({
 			currency = this.label.text;
 		}
 		return currency;
-	},
+	}
 
-	_is_custom_currency_valid: function() {
-		let custom_currency = this.currencyField.clutter_text.text;
-		for (let c in Currencies.currencies) {
+	_is_custom_currency_valid() {
+		var custom_currency = this.currencyField.clutter_text.text;
+		for (var c in Currencies.currencies) {
 			if (Currencies.currencies[c]['code'] == custom_currency) {
 				return true;
 			}
 		}
 		return false;
-	},
+	}
 
-	_validate_currency: function(valid) {
+	_validate_currency(valid) {
 		if (this.currencyField) {
-			let color = valid ? 'lawngreen' : 'red';
+			var color = valid ? 'lawngreen' : 'red';
 			this.currencyField.set_style('color: ' + color + ';');
 		}
-	},
+	}
 
-	_printResult: function(result) {
+	_printResult(result) {
 		if(result) {
-			let nb_decimals;
-			if(result > 1) {
-				nb_decimals = 2;
-			} else if (result > 0.01) {
-				nb_decimals = 3;
-			} else {
-				nb_decimals = 5;
-			}
 			toMenu._setResult(Utils.formatCurrencyNumber(parseFloat(result)));
 		} else {
 			toMenu._setResult(result);
@@ -224,25 +212,20 @@ const CurrencySubMenu = new Lang.Class({
 			if (result == '') {
 				restore_currency_icon();
 			} else {
-				menu.set_label();
+				set_label(toMenu._getResult() + ' ' + toMenu._getCurrency());
 			}
-			// if (Settings.get_boolean('activate-auto-refresh')) {
-			// 	auto_refresh.start();
-			// }
 		}
-	},
+	}
 
-	_error_handler: function(title, message) {
+	_error_handler(title, message) {
 		Main.notify(title, message);
 	}
-});
+};
 
-const FromSubMenu = new Lang.Class({
-	Name: 'FromSubMenu',
-	Extends: CurrencySubMenu,
+const FromSubMenu = class FromSubMenu extends CurrencySubMenu {
 
-	_init:function(converter) {
-		this.parent(from_currency);
+	constructor(converter) {
+		super(from_currency);
         this.converter = converter;
 
 		this.fromField = new St.Entry({
@@ -257,17 +240,17 @@ const FromSubMenu = new Lang.Class({
 		this.clutter_text.connect('activate', Lang.bind(this, this._on_activate));
 		this.clutter_text.set_x_expand(true);
 		this.actor.insert_child_at_index(this.fromField, 4);
-	},
+	}
 
-	_get_FromField: function() {
+	_get_FromField() {
 		return this.fromField;
-	},
+	}
 
-	_getAmount: function() {
+	_getAmount() {
 		return this.clutter_text.text;
-	},
+	}
 
-	_on_activate: function() {
+	_on_activate() {
 		var amount = fromMenu._getAmount();
 		if (amount.indexOf(",") > -1) {
 			amount = amount.replace(",", ".");
@@ -276,9 +259,9 @@ const FromSubMenu = new Lang.Class({
 		if (!isNaN(amount) 
 				&& amount 
 				&& amount != 0) {
-			let from_currency = fromMenu._getCurrency();
-			let to_currency = toMenu._getCurrency();
-			let api_key = Settings.get_string('api-key');
+			var from_currency = fromMenu._getCurrency();
+			var to_currency = toMenu._getCurrency();
+			var api_key = Settings.get_string('api-key');
             this.converter.setFromCurrency(from_currency);
 			this.converter.setToCurrency(to_currency);
 			
@@ -290,56 +273,52 @@ const FromSubMenu = new Lang.Class({
 		} else {
 			this._printResult('');
 		}
-	},
-});
+	}
+};
 
-const ToMenu = new Lang.Class({
-	Name: 'ToMenu',
-	Extends: CurrencySubMenu,
+const ToMenu = class ToMenu extends CurrencySubMenu {
 
-	_init: function() {
-		this.parent(to_currency);
+	constructor() {
+		super(to_currency);
 		resultLabel = new St.Label({
 			x_align: Clutter.ActorAlign.FILL,
 			y_align: Clutter.ActorAlign.CENTER,
 			x_expand: true,
 			width: fromMenu._get_FromField().width});
-		let clutter_text = resultLabel.get_clutter_text();
+		var clutter_text = resultLabel.get_clutter_text();
 		clutter_text.set_x_align(Clutter.ActorAlign.END);
 		clutter_text.set_x_expand(true);
 		this.actor.height = fromMenu.actor.height;
 		this.actor.insert_child_at_index(resultLabel, 4);
-	},
+	}
 
-	_setResult: function(text) {
+	_setResult(text) {
 		resultLabel.text = text.replace(",", ".");
-	},
+	}
 
-	_getResult: function() {
+	_getResult() {
 		return resultLabel.text;
 	}
-});
+};
 
-const ReverseMenu = new Lang.Class({
-	Name: 'ReverseMenu',
-	Extends: PopupMenu.PopupBaseMenuItem,
+const ReverseMenu = class ReverseMenu extends PopupMenu.PopupBaseMenuItem {
 
-	_init: function() {
-		this.parent();
+	constructor() {
+		super();
 
 		// Reverse button
-		let reverse_icon = new St.Icon({
+		var reverse_icon = new St.Icon({
 			icon_name: 'mail-send-receive-symbolic',
         	style_class: 'system-actions-icon',
 			icon_size: icon_size
 		});
-		let reverseButton = new St.Button({
+		var reverseButton = new St.Button({
 			child: reverse_icon, 
 			x_expand: true
 		});
 		reverseButton.connect('clicked', Lang.bind(this, function() {
 			if (!toMenu.showCurrencyField && !fromMenu.showCurrencyField) {
-				let tmp = toMenu._getCurrency();
+				var tmp = toMenu._getCurrency();
 				toMenu._setCurrency(fromMenu._getCurrency());
 				fromMenu._setCurrency(tmp);
 			} else {
@@ -347,7 +326,7 @@ const ReverseMenu = new Lang.Class({
 					fromMenu._show_currency_field(true);
 				if (!toMenu.showCurrencyField)
 					toMenu._show_currency_field(true);
-				let tmp = fromMenu._get_custom_currency();
+				var tmp = fromMenu._get_custom_currency();
 				fromMenu._set_custom_currency(toMenu._get_custom_currency());
 				toMenu._set_custom_currency(tmp);
 			}
@@ -356,12 +335,12 @@ const ReverseMenu = new Lang.Class({
 		this.actor.add(reverseButton);
 
 		// Copy to clipboard button
-		let clipboard_icon = new St.Icon({
+		var clipboard_icon = new St.Icon({
 			icon_name: 'edit-paste-symbolic',
 			style_class: 'system-actions-icon',
 			icon_size: icon_size
 		});
-		let copyButton = new St.Button({
+		var copyButton = new St.Button({
 			child: clipboard_icon, 
 			x_expand: true
 		});
@@ -371,12 +350,12 @@ const ReverseMenu = new Lang.Class({
 		this.actor.add(copyButton);
 
 		// Preferences button
-		let preferences_icon = new St.Icon({
+		var preferences_icon = new St.Icon({
 			icon_name: 'system-run-symbolic',
 			style_class: 'system-actions-icon',
 			icon_size: icon_size
 		});
-		let prefsButton = new St.Button({
+		var prefsButton = new St.Button({
 			child: preferences_icon, 
 			x_expand: true
 		});
@@ -388,12 +367,12 @@ const ReverseMenu = new Lang.Class({
 
 		// Clear PanelMenu button
 		if(Settings.get_boolean('display-result-in-panel-menu')) {
-			let clear_icon = new St.Icon({
+			var clear_icon = new St.Icon({
 				icon_name: 'edit-clear-symbolic',
 				style_class: 'system-actions-icon',
 				icon_size: icon_size
 			});
-			let clearButton = new St.Button({
+			var clearButton = new St.Button({
 				child: clear_icon, 
 				x_expand: true
 			});
@@ -403,12 +382,12 @@ const ReverseMenu = new Lang.Class({
 			}));
 			this.actor.add(clearButton);
 		}
-	},
-});
+	}
+};
 
 function launch_extension_prefs(uuid) {
-    let appSys = Shell.AppSystem.get_default();
-    let app = appSys.lookup_app('gnome-shell-extension-prefs.desktop');
+    var appSys = Shell.AppSystem.get_default();
+    var app = appSys.lookup_app('gnome-shell-extension-prefs.desktop');
 	// global.log(Settings.get_string('favorite-currencies'));
     app.connect('windows_changed', Lang.bind(menu, function() {
 		// global.log('--------');
@@ -420,8 +399,8 @@ function launch_extension_prefs(uuid) {
 			this._settings_changed = false;
         }
     }));
-    let info = app.get_app_info();
-    let timestamp = global.display.get_current_time_roundtrip();
+    var info = app.get_app_info();
+    var timestamp = global.display.get_current_time_roundtrip();
     info.launch_uris(
         ['extension:///' + uuid],
         global.create_app_launch_context(timestamp, -1)
@@ -429,8 +408,8 @@ function launch_extension_prefs(uuid) {
 }
 
 function get_converter_icon_box() {
-	let hbox = new St.BoxLayout({ style_class: 'panel-status-menu-box' });
-	let icon = new St.Icon({
+	var hbox = new St.BoxLayout({ style_class: 'panel-status-menu-box' });
+	var icon = new St.Icon({
 		icon_name: 'mail-send-receive-symbolic',
 		style_class: 'system-actions-icon',
 		'icon_size': icon_size});
@@ -446,17 +425,14 @@ function restore_currency_icon() {
 function init() {
 }
 
-let menu;
-let converter;
-
 function restart() {
 	disable();
 	enable();
 }
 
 function enable() {
-	let api_provider_factory = new APIProviderFactory();
-	let api_provider = api_provider_factory.get_api_provider();
+	var api_provider_factory = new APIProviderFactory();
+	var api_provider = api_provider_factory.get_api_provider();
     converter = new Converter(api_provider);
     menu = new CurrencyConverterMenuButton(converter);
     Main.panel.addToStatusArea('currencyconverter', menu);

@@ -8,14 +8,14 @@ const APIProvider = Me.imports.api_providers.APIProvider;
 let CUR_PREFIX = 'USD';
 let BASE_URL = 'http://www.apilayer.net/api/live?';
 
-var Converter = new Lang.Class({
-	Name: 'Converter',
+var Converter = class Converter {
+	
 
-	_init: function(api_provider) {
+	constructor(api_provider) {
 		this.api_provider = api_provider;
-	},
+	}
 
-	is_api_key_valid: function(callback) {
+	is_api_key_valid(callback) {
 		if (!this.api_provider.get) {
 			return false;
 		}
@@ -36,41 +36,41 @@ var Converter = new Lang.Class({
 				callback(valid);
 		}));
 		return valid;
-	},
+	}
 
-	setFromCurrency: function(currency) {
+	setFromCurrency(currency) {
 		this.fromCurrency = currency;
-	},
+	}
 
-	setToCurrency: function(currency) {
+	setToCurrency(currency) {
 		this.toCurrency = currency;
-	},
+	}
 
-	getFromCurrency: function() {
+	getFromCurrency() {
 		return this.fromCurrency;
-	},
+	}
 
-	getToCurrency: function() {
+	getToCurrency() {
 		return this.toCurrency;
-	},
+	}
 
-	setAPIKey: function(api_key) {
+	setAPIKey(api_key) {
 		this._api_key = api_key;
-	},
+	}
 
-	getAPIKey: function() {
+	getAPIKey() {
 		return this._api_key;
-	},
+	}
 
-	getToUSDCurrency: function() {
+	getToUSDCurrency() {
 		return CUR_PREFIX + this.toCurrency;
-	},
+	}
 
-	getFromUSDCurrency: function() {
+	getFromUSDCurrency() {
 		return CUR_PREFIX + this.fromCurrency;
-	},
+	}
 
-	convert: function(amount, callback, error_handler) {
+	convert(amount, callback, error_handler) {
 		if (!this.api_provider.get_api_key()) {
 			error_handler('Currency Converter cannot work.', 'Please create a free account on the website currecylayer.com, and enter your key in the parameters page.');
 			return;
@@ -96,13 +96,13 @@ var Converter = new Lang.Class({
 					// }
 				} else {
 					let json = JSON.parse(response.response_body.data);
-					error_handler('Currency Converter cannot work.', this.api_provider.get_error_message(json));
+					error_handler('Currency Converter doesn\' work.', this.api_provider.get_error_message(json));
 				}
 			} catch (err) {
-				error_handler('Currency Converter cannot work.', "The server couldn't be reached.");
+				error_handler('Currency Converter doesn\' work.', "The server couldn't be reached.");
 				return;
 			}
 		}));
 	}
-});
+};
 Signals.addSignalMethods(Converter.prototype);

@@ -97,21 +97,17 @@ const CurrencySubMenu = class CurrencySubMenu extends PopupMenu.PopupSubMenuMenu
 		super(currency);
 		/* add menus */
 		this.menuItems = new Array();
-		this.buttons = new Array();
 		for(var currency in fav_currencies) {
 			var currencyMenuItem = new PopupMenu.PopupBaseMenuItem({activate: false});
 			var currencyButton = new St.Button({label: fav_currencies[currency], x_align: 0, x_expand: true})
-    	    currencyButton.connect('clicked', Lang.bind(this, function() {
+
+			currencyButton.connect('clicked', Lang.bind(this, function(currencyButton) {
 				this._setCurrency(currencyButton.label);
-				for(var item in this.menuItems) {
-					var checked = this.buttons[item].label == this._getCurrency();
-					this.menuItems[item].setOrnament(checked);
-				}
+				this._setOrnament();
 			}));
 			currencyMenuItem.actor.add(currencyButton);
 	        this.menu.addMenuItem(currencyMenuItem);
 			this.menuItems.push(currencyMenuItem);
-			this.buttons.push(currencyButton);
 		}
 
 		if (Settings.get_boolean('allow-custom-currencies')) {
@@ -123,9 +119,13 @@ const CurrencySubMenu = class CurrencySubMenu extends PopupMenu.PopupSubMenuMenu
 		}
 
 		/* initial ornament */
-		for(var item in this.menuItems) {
-			var checked = this.buttons[item].label == this._getCurrency();
-			this.menuItems[item].setOrnament(checked);
+		this._setOrnament();
+	}
+
+	_setOrnament() {
+		for(var item of this.menuItems) {
+			var button = item.actor.get_child_at_index(1);
+			item.setOrnament(button.label == this._getCurrency());
 		}
 	}
 
